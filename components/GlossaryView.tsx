@@ -57,10 +57,10 @@ const GlossaryView: React.FC<Props> = ({
 
   const getTagColor = (category: Category) => {
     switch (category) {
-      case 'Strategy': return 'bg-rose-50 text-rose-600 border-rose-100';
-      case 'Data': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-      case 'Design': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
-      case 'Delivery': return 'bg-amber-50 text-amber-600 border-amber-100';
+      case 'Platforms': return 'bg-rose-50 text-rose-600 border-rose-100';
+      case 'Governance': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+      case 'Techniques': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+      case 'Tools': return 'bg-amber-50 text-amber-600 border-amber-100';
       default: return 'bg-slate-50 text-slate-400 border-slate-100';
     }
   };

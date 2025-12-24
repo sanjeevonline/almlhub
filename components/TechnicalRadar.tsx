@@ -8,9 +8,9 @@ interface Props {
 }
 
 const RINGS: MaturityLevel[] = ['Adopt', 'Trial', 'Assess', 'Experimental'];
-const QUADRANTS: Category[] = ['Data', 'Strategy', 'Delivery', 'Design'];
+const QUADRANTS: Category[] = ['Governance', 'Platforms', 'Techniques', 'Tools'];
 
-// Radii factors adjusted to make 'Adopt' significantly wider while compressing outer rings
+// Radii factors adjusted: 'Adopt' is the widest, outer rings are slightly more compressed.
 const RING_RADII_FACTORS = [0.44, 0.64, 0.82, 0.98];
 
 const getStableSeed = (id: string) => {
@@ -41,37 +41,46 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
     QUADRANTS.forEach((q) => {
       const qIdx = QUADRANTS.indexOf(q);
       const qAngles = [
-        { start: 0, end: 90 },    // Data (BR)
-        { start: 90, end: 180 },  // Strategy (BL)
-        { start: 180, end: 270 }, // Delivery (TL)
-        { start: 270, end: 360 }, // Design (TR)
+        { start: 0, end: 90 },    // Governance (BR)
+        { start: 90, end: 180 },  // Platforms (BL)
+        { start: 180, end: 270 }, // Techniques (TL)
+        { start: 270, end: 360 }, // Tools (TR)
       ];
 
       RINGS.forEach((ring, rIdx) => {
         const key = `${q}-${ring}`;
         const groupItems = groups[key] || [];
-        
-        const startAngle = qAngles[qIdx].start + 12;
-        const endAngle = qAngles[qIdx].end - 12;
+        if (groupItems.length === 0) return;
+
+        const startAngle = qAngles[qIdx].start + 14;
+        const endAngle = qAngles[qIdx].end - 14;
         const angleRange = endAngle - startAngle;
         
-        const rStart = rIdx === 0 ? 40 : RING_RADII_FACTORS[rIdx - 1] * ringRadius + 10;
-        const rEnd = RING_RADII_FACTORS[rIdx] * ringRadius - 10;
+        const rStart = rIdx === 0 ? 50 : RING_RADII_FACTORS[rIdx - 1] * ringRadius + 15;
+        const rEnd = RING_RADII_FACTORS[rIdx] * ringRadius - 15;
         const rRange = rEnd - rStart;
+
+        let rows = 1;
+        if (groupItems.length > 3) rows = 2;
+        if (groupItems.length > 7) rows = 3;
+        if (groupItems.length > 12) rows = 4;
+        
+        const cols = Math.ceil(groupItems.length / rows);
 
         groupItems.forEach((item, i) => {
           const seed = getStableSeed(item.id);
+          const row = Math.floor(i / cols);
+          const col = i % cols;
+          const stagger = (row % 2) * 0.3;
           
-          const rowCount = Math.ceil(Math.sqrt(groupItems.length));
-          const col = i % rowCount;
-          const row = Math.floor(i / rowCount);
-          
-          const angleNorm = (col + 0.5) / rowCount + ((seed % 20) - 10) / 100;
-          const angleDeg = startAngle + (angleNorm * angleRange);
+          const jitterAngle = ((seed % 100) - 50) / 400; 
+          const angleNorm = (col + 0.5 + stagger) / (cols + (rows > 1 ? 0.3 : 0));
+          const angleDeg = startAngle + (Math.max(0.05, Math.min(0.95, angleNorm + jitterAngle)) * angleRange);
           const angleRad = (angleDeg * Math.PI) / 180;
           
-          const radialNorm = (row + 0.5) / rowCount + ((seed % 30) - 15) / 100;
-          const radius = rStart + (Math.max(0.1, Math.min(0.9, radialNorm)) * rRange);
+          const jitterRadial = (((seed >> 4) % 100) - 50) / 400; 
+          const radialNorm = (row + 0.5) / rows;
+          const radius = rStart + (Math.max(0.1, Math.min(0.9, radialNorm + jitterRadial)) * rRange);
           
           const x = center + radius * Math.cos(angleRad);
           const y = center + radius * Math.sin(angleRad);
@@ -86,30 +95,30 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
 
   const getBlipColor = (category: Category) => {
     switch (category) {
-      case 'Strategy': return 'stroke-rose-500';
-      case 'Data': return 'stroke-emerald-500';
-      case 'Design': return 'stroke-indigo-500';
-      case 'Delivery': return 'stroke-amber-500';
+      case 'Platforms': return 'stroke-rose-500';
+      case 'Governance': return 'stroke-emerald-500';
+      case 'Techniques': return 'stroke-indigo-500';
+      case 'Tools': return 'stroke-amber-500';
       default: return 'stroke-slate-500';
     }
   };
 
   const getBlipFill = (category: Category) => {
     switch (category) {
-      case 'Strategy': return 'fill-rose-50';
-      case 'Data': return 'fill-emerald-50';
-      case 'Design': return 'fill-indigo-50';
-      case 'Delivery': return 'fill-amber-50';
+      case 'Platforms': return 'fill-rose-50';
+      case 'Governance': return 'fill-emerald-50';
+      case 'Techniques': return 'fill-indigo-50';
+      case 'Tools': return 'fill-amber-50';
       default: return 'fill-slate-50';
     }
   };
 
   const getCategoryBorderColor = (category: Category) => {
     switch (category) {
-      case 'Strategy': return 'stroke-rose-500';
-      case 'Data': return 'stroke-emerald-500';
-      case 'Design': return 'stroke-indigo-500';
-      case 'Delivery': return 'stroke-amber-500';
+      case 'Platforms': return 'stroke-rose-500';
+      case 'Governance': return 'stroke-emerald-500';
+      case 'Techniques': return 'stroke-indigo-500';
+      case 'Tools': return 'stroke-amber-500';
       default: return 'stroke-slate-200';
     }
   };
@@ -128,10 +137,10 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
     if (!activeQuadrant) return `0 0 ${size} ${size}`;
     const zoomSize = center + 5; 
     switch (activeQuadrant) {
-      case 'Design': return `${center - 5} -5 ${zoomSize} ${zoomSize}`;
-      case 'Delivery': return `-5 -5 ${zoomSize} ${zoomSize}`;
-      case 'Strategy': return `-5 ${center - 5} ${zoomSize} ${zoomSize}`;
-      case 'Data': return `${center - 5} ${center - 5} ${zoomSize} ${zoomSize}`;
+      case 'Tools': return `${center - 5} -5 ${zoomSize} ${zoomSize}`;
+      case 'Techniques': return `-5 -5 ${zoomSize} ${zoomSize}`;
+      case 'Platforms': return `-5 ${center - 5} ${zoomSize} ${zoomSize}`;
+      case 'Governance': return `${center - 5} ${center - 5} ${zoomSize} ${zoomSize}`;
       default: return `0 0 ${size} ${size}`;
     }
   };
@@ -161,10 +170,10 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
           const isHighlighted = activeQuadrant === q;
           const isHidden = activeQuadrant && activeQuadrant !== q;
           const qPaths = [
-            `M ${center} ${center} L ${size} ${center} A ${center} ${center} 0 0 1 ${center} ${size} Z`, // Data (BR)
-            `M ${center} ${center} L ${center} ${size} A ${center} ${center} 0 0 1 0 ${center} Z`,      // Strategy (BL)
-            `M ${center} ${center} L 0 ${center} A ${center} ${center} 0 0 1 ${center} 0 Z`,      // Delivery (TL)
-            `M ${center} ${center} L ${center} 0 A ${center} ${center} 0 0 1 ${size} ${center} Z`,      // Design (TR)
+            `M ${center} ${center} L ${size} ${center} A ${center} ${center} 0 0 1 ${center} ${size} Z`, // Governance (BR)
+            `M ${center} ${center} L ${center} ${size} A ${center} ${center} 0 0 1 0 ${center} Z`,      // Platforms (BL)
+            `M ${center} ${center} L 0 ${center} A ${center} ${center} 0 0 1 ${center} 0 Z`,      // Techniques (TL)
+            `M ${center} ${center} L ${center} 0 A ${center} ${center} 0 0 1 ${size} ${center} Z`,      // Tools (TR)
           ];
           
           return (
@@ -216,10 +225,10 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
 
         {/* Quadrant Labels */}
         {[
-          { text: 'DESIGN', x: center + 145, y: center - 145, id: 'Design' },
-          { text: 'DELIVERY', x: center - 145, y: center - 145, id: 'Delivery' },
-          { text: 'STRATEGY', x: center - 145, y: center + 145, id: 'Strategy' },
-          { text: 'DATA', x: center + 145, y: center + 145, id: 'Data' },
+          { text: 'TOOLS', x: center + 145, y: center - 145, id: 'Tools' },
+          { text: 'TECHNIQUES', x: center - 145, y: center - 145, id: 'Techniques' },
+          { text: 'PLATFORMS', x: center - 145, y: center + 145, id: 'Platforms' },
+          { text: 'GOVERNANCE', x: center + 145, y: center + 145, id: 'Governance' },
         ].map((q) => (
           <g key={q.text} className={`transition-opacity duration-500 ${activeQuadrant === q.id ? 'opacity-100' : activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
             <text

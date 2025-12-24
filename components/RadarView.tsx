@@ -23,10 +23,10 @@ const RadarView: React.FC = () => {
 
   const getPillarColor = (pillar: Category) => {
     switch (pillar) {
-      case 'Strategy': return 'text-rose-600';
-      case 'Data': return 'text-emerald-600';
-      case 'Design': return 'text-indigo-600';
-      case 'Delivery': return 'text-amber-600';
+      case 'Platforms': return 'text-rose-600';
+      case 'Governance': return 'text-emerald-600';
+      case 'Techniques': return 'text-indigo-600';
+      case 'Tools': return 'text-amber-600';
       default: return 'text-slate-600';
     }
   };
@@ -88,7 +88,7 @@ const RadarView: React.FC = () => {
            >
              ALL
            </button>
-           {['Design', 'Delivery', 'Strategy', 'Data'].map((p) => (
+           {['Techniques', 'Platforms', 'Tools', 'Governance'].map((p) => (
              <button 
                 key={p} 
                 onClick={() => { setSelectedQuadrant(p as Category); }}
@@ -179,10 +179,10 @@ const RadarView: React.FC = () => {
         const definition = techData.definition || selectedCompetency.description;
         const getTagColor = (category: Category) => {
           switch (category) {
-            case 'Strategy': return 'bg-rose-50 text-rose-600 border-rose-100';
-            case 'Data': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-            case 'Design': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
-            case 'Delivery': return 'bg-amber-50 text-amber-600 border-amber-100';
+            case 'Platforms': return 'bg-rose-50 text-rose-600 border-rose-100';
+            case 'Governance': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+            case 'Techniques': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+            case 'Tools': return 'bg-amber-50 text-amber-600 border-amber-100';
             default: return 'bg-slate-50 text-slate-400 border-slate-100';
           }
         };

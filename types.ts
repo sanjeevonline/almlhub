@@ -1,5 +1,5 @@
 
-export type Category = 'Strategy' | 'Data' | 'Design' | 'Delivery';
+export type Category = 'Techniques' | 'Platforms' | 'Tools' | 'Governance';
 export type MaturityLevel = 'Adopt' | 'Trial' | 'Assess' | 'Experimental';
 
 export interface CompetencyTerm {
