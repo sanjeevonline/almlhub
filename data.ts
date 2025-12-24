@@ -15,6 +15,7 @@ export const COMPETENCY_DB: CompetencyData = {
       keyTech: 'Attention Is All You Need',
       details: "### Definition\nThe Transformer is the foundational architecture of modern AI, replacing RNNs/LSTMs with a parallelizable self-attention mechanism. It allows models to weight the significance of different parts of input data dynamically.\n\n### Application\nIt is the 'compute engine' inside GPT-4, Gemini, and Claude. In enterprise settings, understanding Transformer blocks is critical for debugging context window limits and optimizing inference costs.\n\n### Risks\nQuadratic complexity (O(N²)) means that doubling input text quadruples the compute required. Without attention-optimization (like FlashAttention), long-document processing becomes economically unviable."
     },
+    */
     { 
       id: 'slms', 
       name: 'Small Language Models (SLMs)', 
@@ -655,8 +656,6 @@ export const COMPETENCY_DB: CompetencyData = {
       description: 'Noise-based privacy protection for datasets.',
       details: "### Definition\nDifferential Privacy is a mathematical framework that adds a precisely calculated amount of 'noise' to a dataset so that individual records cannot be identified, but group patterns remain.\n\n### Application\nTraining AI on highly sensitive personal data (e.g. medical or financial) while providing a mathematical guarantee that no individual's private data can be extracted.\n\n### Risks\nAccuracy loss: There is a direct trade-off (the 'Epsilon Budget') between how much privacy you have and how accurate the resulting model will be."
     },
-
-    */
     { 
       id: 'constitutional-ai', 
       name: 'Constitutional AI', 

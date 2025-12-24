@@ -1,5 +1,4 @@
-
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Category, CompetencyTerm, MaturityLevel, RadarItem } from '../types';
 
 interface Props {
@@ -10,81 +9,77 @@ interface Props {
 }
 
 const RINGS: MaturityLevel[] = ['Adopt', 'Trial', 'Assess', 'Experimental'];
-const QUADRANTS: Category[] = ['Governance', 'Platforms', 'Techniques', 'Tools'];
-
-const RING_RADII_FACTORS = [0.44, 0.64, 0.82, 0.98];
-
-const getStableSeed = (id: string) => {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return Math.abs(hash);
-};
+const QUADRANTS: Category[] = ['Techniques', 'Tools', 'Platforms', 'Governance'];
 
 const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, activeQuadrant, allCompetencies }) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [hoveredRing, setHoveredRing] = useState<string | null>(null);
-  const size = 600;
-  const center = size / 2;
-  const ringRadius = center - 10; 
+  const [isMobile, setIsMobile] = useState(false);
+  
+  const viewWidth = 800;
+  const viewHeight = 520; 
+  const centerX = viewWidth / 2;
+  const centerY = viewHeight / 2;
+  const gap = 12; 
+  const quadWidth = (viewWidth - gap) / 2;
+  const quadHeight = (viewHeight - gap) / 2;
+
+  // Expanded first ring (Adopt) significantly as it usually contains the most items
+  const ringRadii = [110, 165, 215, 260];
+
+  useEffect(() => {
+    const checkMobile = () => window.innerWidth < 768;
+    const updateMobile = () => setIsMobile(checkMobile());
+    updateMobile();
+    window.addEventListener('resize', updateMobile);
+    return () => window.removeEventListener('resize', updateMobile);
+  }, []);
 
   const points = useMemo(() => {
-    const groups: Record<string, CompetencyTerm[]> = {};
-    allCompetencies.forEach(item => {
-      const key = `${item.category}-${item.maturity}`;
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(item);
-    });
-
     const itemsWithCoords: RadarItem[] = [];
 
     QUADRANTS.forEach((q) => {
       const qIdx = QUADRANTS.indexOf(q);
+      // Increased buffer (15 degrees) from quadrant edges to keep blips centered
       const qAngles = [
-        { start: 0, end: 90 },    // Governance (BR)
-        { start: 90, end: 180 },  // Platforms (BL)
-        { start: 180, end: 270 }, // Techniques (TL)
-        { start: 270, end: 360 }, // Tools (TR)
+        { start: 195, end: 255 }, // Techniques (Top Left)
+        { start: 285, end: 345 }, // Tools (Top Right)
+        { start: 105, end: 165 }, // Platforms (Bottom Left)
+        { start: 15, end: 75 },   // Governance (Bottom Right)
       ];
 
       RINGS.forEach((ring, rIdx) => {
-        const key = `${q}-${ring}`;
-        const groupItems = groups[key] || [];
+        const groupItems = allCompetencies.filter(item => item.category === q && item.maturity === ring);
         if (groupItems.length === 0) return;
 
-        const startAngle = qAngles[qIdx].start + 14;
-        const endAngle = qAngles[qIdx].end - 14;
+        const innerR = rIdx === 0 ? 30 : ringRadii[rIdx - 1] + 12;
+        const outerR = ringRadii[rIdx] - 12;
+        const startAngle = qAngles[qIdx].start;
+        const endAngle = qAngles[qIdx].end;
         const angleRange = endAngle - startAngle;
-        
-        const rStart = rIdx === 0 ? 50 : RING_RADII_FACTORS[rIdx - 1] * ringRadius + 15;
-        const rEnd = RING_RADII_FACTORS[rIdx] * ringRadius - 15;
-        const rRange = rEnd - rStart;
 
-        let rows = 1;
-        if (groupItems.length > 3) rows = 2;
-        if (groupItems.length > 7) rows = 3;
-        if (groupItems.length > 12) rows = 4;
-        
-        const cols = Math.ceil(groupItems.length / rows);
+        // More sophisticated distribution: grid-like approach within the polar segment
+        // to maximize distance between blips
+        const itemCount = groupItems.length;
+        const rows = Math.ceil(Math.sqrt(itemCount * (outerR - innerR) / (angleRange * 2)));
+        const cols = Math.ceil(itemCount / rows);
 
         groupItems.forEach((item, i) => {
-          const seed = getStableSeed(item.id);
           const row = Math.floor(i / cols);
           const col = i % cols;
-          const stagger = (row % 2) * 0.3;
           
-          const jitterAngle = ((seed % 100) - 50) / 400; 
-          const angleNorm = (col + 0.5 + stagger) / (cols + (rows > 1 ? 0.3 : 0));
-          const angleDeg = startAngle + (Math.max(0.05, Math.min(0.95, angleNorm + jitterAngle)) * angleRange);
-          const angleRad = (angleDeg * Math.PI) / 180;
+          // Add deterministic jitter based on index
+          const rowJitter = (Math.sin(i * 0.7) * 0.2);
+          const colJitter = (Math.cos(i * 0.9) * 0.2);
+
+          const rNorm = (row + 0.5 + rowJitter) / rows;
+          const aNorm = (col + 0.5 + colJitter) / cols;
+
+          const radius = innerR + rNorm * (outerR - innerR);
+          const angle = startAngle + aNorm * angleRange;
+          const angleRad = (angle * Math.PI) / 180;
           
-          const jitterRadial = (((seed >> 4) % 100) - 50) / 400; 
-          const radialNorm = (row + 0.5) / rows;
-          const radius = rStart + (Math.max(0.1, Math.min(0.9, radialNorm + jitterRadial)) * rRange);
-          
-          const x = center + radius * Math.cos(angleRad);
-          const y = center + radius * Math.sin(angleRad);
+          const x = centerX + radius * Math.cos(angleRad);
+          const y = centerY + radius * Math.sin(angleRad);
           
           itemsWithCoords.push({ ...item, x, y } as RadarItem);
         });
@@ -92,265 +87,122 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
     });
 
     return itemsWithCoords;
-  }, [ringRadius, center, allCompetencies]);
-
-  const getBlipColor = (category: Category) => {
-    switch (category) {
-      case 'Platforms': return 'stroke-rose-500';
-      case 'Governance': return 'stroke-emerald-500';
-      case 'Techniques': return 'stroke-indigo-500';
-      case 'Tools': return 'stroke-amber-500';
-      default: return 'stroke-slate-500';
-    }
-  };
-
-  const getBlipFill = (category: Category) => {
-    switch (category) {
-      case 'Platforms': return 'fill-rose-50 dark:fill-rose-900/40';
-      case 'Governance': return 'fill-emerald-50 dark:fill-emerald-900/40';
-      case 'Techniques': return 'fill-indigo-50 dark:fill-indigo-900/40';
-      case 'Tools': return 'fill-amber-50 dark:fill-amber-900/40';
-      default: return 'fill-slate-50 dark:fill-slate-800';
-    }
-  };
-
-  const getCategoryBorderColor = (category: Category) => {
-    switch (category) {
-      case 'Platforms': return 'stroke-rose-500';
-      case 'Governance': return 'stroke-emerald-500';
-      case 'Techniques': return 'stroke-indigo-500';
-      case 'Tools': return 'stroke-amber-500';
-      default: return 'stroke-slate-200';
-    }
-  };
-
-  const getMaturityTextColor = (level: MaturityLevel) => {
-    switch (level) {
-      case 'Adopt': return 'text-emerald-600 dark:text-emerald-400';
-      case 'Trial': return 'text-indigo-600 dark:text-indigo-400';
-      case 'Assess': return 'text-amber-600 dark:text-amber-400';
-      case 'Experimental': return 'text-purple-600 dark:text-purple-400';
-      default: return 'text-slate-600 dark:text-slate-400';
-    }
-  };
+  }, [centerX, centerY, allCompetencies]);
 
   const getViewBox = () => {
-    if (!activeQuadrant) return `0 0 ${size} ${size}`;
-    const zoomSize = center + 5; 
+    if (!activeQuadrant) return `0 0 ${viewWidth} ${viewHeight}`;
+    
     switch (activeQuadrant) {
-      case 'Tools': return `${center - 5} -5 ${zoomSize} ${zoomSize}`;
-      case 'Techniques': return `-5 -5 ${zoomSize} ${zoomSize}`;
-      case 'Platforms': return `-5 ${center - 5} ${zoomSize} ${zoomSize}`;
-      case 'Governance': return `${center - 5} ${center - 5} ${zoomSize} ${zoomSize}`;
-      default: return `0 0 ${size} ${size}`;
+      case 'Techniques': return `0 0 ${quadWidth} ${quadHeight}`;
+      case 'Tools': return `${quadWidth + gap} 0 ${quadWidth} ${quadHeight}`;
+      case 'Platforms': return `0 ${quadHeight + gap} ${quadWidth} ${quadHeight}`;
+      case 'Governance': return `${quadWidth + gap} ${quadHeight + gap} ${quadWidth} ${quadHeight}`;
+      default: return `0 0 ${viewWidth} ${viewHeight}`;
     }
   };
 
   return (
-    <div className="relative w-full aspect-square bg-white dark:bg-slate-800/50 rounded-[2.5rem] p-2 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner overflow-hidden transition-colors duration-300">
+    <div className={`w-full h-full bg-transparent flex flex-col items-center justify-center overflow-visible ${isMobile ? 'px-6' : ''}`}>
       <svg 
         viewBox={getViewBox()} 
-        className="w-full h-full drop-shadow-sm overflow-visible transition-all duration-[850ms] ease-[cubic-bezier(0.65,0,0.35,1)]"
+        className="w-full h-auto transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-visible"
+        preserveAspectRatio="xMidYMid meet"
       >
         <defs>
-          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
-            <feOffset dx="0" dy="1" result="offsetblur" />
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="0.2" />
-            </feComponentTransfer>
-            <feMerge>
-              <feMergeNode />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+          <filter id="blipShadow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
+            <feComponentTransfer><feFuncA type="linear" slope="0.9"/></feComponentTransfer>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
 
-        {QUADRANTS.map((q, i) => {
-          const isHighlighted = activeQuadrant === q;
-          const isHidden = activeQuadrant && activeQuadrant !== q;
-          const qPaths = [
-            `M ${center} ${center} L ${size} ${center} A ${center} ${center} 0 0 1 ${center} ${size} Z`,
-            `M ${center} ${center} L ${center} ${size} A ${center} ${center} 0 0 1 0 ${center} Z`,
-            `M ${center} ${center} L 0 ${center} A ${center} ${center} 0 0 1 ${center} 0 Z`,
-            `M ${center} ${center} L ${center} 0 A ${center} ${center} 0 0 1 ${size} ${center} Z`,
-          ];
-          
-          return (
-            <path 
-              key={q}
-              d={qPaths[i]}
-              onClick={() => onQuadrantClick?.(q)}
-              className={`transition-all duration-500 cursor-pointer ${
-                isHidden ? 'opacity-0 pointer-events-none' : 
-                isHighlighted ? 'fill-indigo-500/[0.04] dark:fill-indigo-400/[0.04] stroke-none' : 'fill-transparent hover:fill-slate-100/50 dark:hover:fill-slate-700/50 active:fill-slate-200'
-              }`}
-            />
-          );
-        })}
+        {/* Quadrant Rectangles */}
+        <g>
+          <rect x="0" y="0" width={quadWidth} height={quadHeight} fill="#3e98a0" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Techniques')} />
+          <rect x={quadWidth + gap} y="0" width={quadWidth} height={quadHeight} fill="#6a9a73" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Tools')} />
+          <rect x="0" y={quadHeight + gap} width={quadWidth} height={quadHeight} fill="#d48c0b" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Platforms')} />
+          <rect x={quadWidth + gap} y={quadHeight + gap} width={quadWidth} height={quadHeight} fill="#f1647e" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Governance')} />
+        </g>
 
-        {RINGS.map((ring, i) => {
-          const isHovered = hoveredRing === ring;
-          const isActive = !activeQuadrant;
-          const isExperimental = ring === 'Experimental';
-          return (
-            <circle
-              key={ring}
-              cx={center}
-              cy={center}
-              r={RING_RADII_FACTORS[i] * ringRadius}
-              fill="none"
-              stroke={
-                isExperimental
-                  ? (isHovered ? "rgba(147, 51, 234, 0.5)" : "rgba(147, 51, 234, 0.2)")
-                  : (isHovered ? "rgba(148, 163, 184, 0.5)" : "rgba(148, 163, 184, 0.15)")
-              }
-              strokeWidth={isHovered ? "2.5" : "1"}
-              strokeDasharray={isExperimental ? "6 4" : "none"}
-              onMouseEnter={() => setHoveredRing(ring)}
-              onMouseLeave={() => setHoveredRing(null)}
-              className={`pointer-events-auto transition-all duration-300 ${isActive ? '' : 'opacity-40'}`}
-            />
-          );
-        })}
+        {/* Maturity Rings & Labels */}
+        <g className={`pointer-events-none transition-opacity duration-500 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
+          {ringRadii.map((r, i) => (
+            <React.Fragment key={i}>
+              <circle 
+                cx={centerX} cy={centerY} 
+                r={r} 
+                fill="none" 
+                stroke="white" 
+                strokeOpacity="0.3" 
+                strokeWidth="1.5" 
+                strokeDasharray="4 6"
+              />
+              {/* Ring Labels - Balanced positioning */}
+              <text 
+                x={centerX} 
+                y={centerY - r + 16} 
+                textAnchor="middle" 
+                fill="white" 
+                fillOpacity="0.5" 
+                className="text-[9px] font-black uppercase tracking-[0.3em] pointer-events-none"
+              >
+                {RINGS[i]}
+              </text>
+            </React.Fragment>
+          ))}
+        </g>
 
-        {!activeQuadrant && (
-          <>
-            <line x1={center} y1={0} x2={center} y2={size} stroke="rgba(148, 163, 184, 0.2)" strokeWidth="1" strokeDasharray="4 4" className="pointer-events-none" />
-            <line x1={0} y1={center} x2={size} y2={center} stroke="rgba(148, 163, 184, 0.2)" strokeWidth="1" strokeDasharray="4 4" className="pointer-events-none" />
-          </>
-        )}
+        {/* Quadrant Labels */}
+        <g className="pointer-events-none fill-white font-bold transition-all duration-700">
+          <text x={quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Techniques' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Techniques' ? 0 : 0.9 }}>Techniques ›</text>
+          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Tools' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Tools' ? 0 : 0.9 }}>Tools ›</text>
+          <text x={quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Platforms' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Platforms' ? 0 : 0.9 }}>Platforms ›</text>
+          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Governance' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Governance' ? 0 : 0.9 }}>Governance ›</text>
+        </g>
 
-        {[
-          { text: 'TOOLS', x: center + 145, y: center - 145, id: 'Tools' },
-          { text: 'TECHNIQUES', x: center - 145, y: center - 145, id: 'Techniques' },
-          { text: 'PLATFORMS', x: center - 145, y: center + 145, id: 'Platforms' },
-          { text: 'GOVERNANCE', x: center + 145, y: center + 145, id: 'Governance' },
-        ].map((q) => (
-          <g key={q.text} className={`transition-opacity duration-500 ${activeQuadrant === q.id ? 'opacity-100' : activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
-            <text
-              x={q.x}
-              y={q.y}
-              textAnchor="middle"
-              className="text-[14px] font-black tracking-[0.4em] pointer-events-none fill-white dark:fill-slate-900 stroke-white dark:stroke-slate-900 stroke-[4px] opacity-80"
-            >
-              {q.text}
-            </text>
-            <text
-              x={q.x}
-              y={q.y}
-              textAnchor="middle"
-              className={`text-[14px] font-black tracking-[0.4em] pointer-events-none ${
-                activeQuadrant === q.id ? 'fill-indigo-600 dark:fill-indigo-400' : 'fill-slate-400 dark:fill-slate-600'
-              }`}
-            >
-              {q.text}
-            </text>
-          </g>
-        ))}
-
-        {RINGS.map((ring, i) => (
-          <g key={ring} className={`transition-all duration-500 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
-            <text
-              x={center}
-              y={center - (RING_RADII_FACTORS[i] * ringRadius) + 12}
-              textAnchor="middle"
-              className="text-[8px] font-black uppercase tracking-widest pointer-events-none fill-white dark:fill-slate-900 stroke-white dark:stroke-slate-900 stroke-[3px]"
-            >
-              {ring}
-            </text>
-            <text
-              x={center}
-              y={center - (RING_RADII_FACTORS[i] * ringRadius) + 12}
-              textAnchor="middle"
-              className={`text-[8px] font-black uppercase tracking-widest pointer-events-none ${
-                ring === 'Experimental' ? 'fill-purple-500' : 'fill-slate-500 dark:fill-slate-600'
-              }`}
-            >
-              {ring}
-            </text>
-          </g>
-        ))}
-
-        {points.map((p) => {
-          const isActive = !activeQuadrant || activeQuadrant === p.category;
-          const isHovered = hoveredId === p.id;
-          const isExperimental = p.maturity === 'Experimental';
-          return (
-            <g 
-              key={p.id} 
-              onMouseEnter={() => setHoveredId(p.id)}
-              onMouseLeave={() => setHoveredId(null)}
-              onClick={(e) => {
-                e.stopPropagation();
-                onPointClick?.(p);
-              }}
-              className={`transition-all duration-700 ease-in-out cursor-pointer ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'}`}
-            >
-              {isHovered && isActive && (
+        {/* Blips */}
+        <g className={`transition-opacity duration-500 ${activeQuadrant || isMobile ? 'opacity-0' : 'opacity-100'}`}>
+          {points.map((p) => {
+            const isHovered = hoveredId === p.id;
+            return (
+              <g 
+                key={p.id} 
+                onMouseEnter={() => setHoveredId(p.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPointClick?.(p);
+                }}
+                className="transition-all duration-300 cursor-pointer"
+              >
                 <circle
-                  cx={p.x}
-                  cy={p.y}
-                  r="14"
-                  className={`animate-pulse opacity-30 fill-current ${getBlipColor(p.category).replace('stroke', 'fill')}`}
+                  cx={p.x} cy={p.y}
+                  r={isHovered ? 10 : 5.5}
+                  fill="white"
+                  fillOpacity={isHovered ? 1 : 0.85}
+                  stroke="rgba(0,0,0,0.2)"
+                  strokeWidth="1"
+                  className="transition-all duration-300"
+                  filter={isHovered ? "url(#blipShadow)" : ""}
                 />
-              )}
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r={isHovered ? 10 : (isExperimental ? 5 : 7)}
-                className={`transition-all duration-300 ${getBlipFill(p.category)} ${getBlipColor(p.category)} shadow-sm ${isExperimental ? 'stroke-dasharray-[2,2]' : ''}`}
-                strokeWidth={isHovered ? "4" : (isExperimental ? "1.5" : "3")}
-                filter="url(#shadow)"
-              />
-              <circle
-                 cx={p.x}
-                 cy={p.y}
-                 r="22"
-                 className="fill-none stroke-transparent pointer-events-auto"
-                 strokeWidth="1"
-              />
-            </g>
-          );
-        })}
+              </g>
+            );
+          })}
+        </g>
 
-        {points.map((p) => {
-          const isPointHovered = hoveredId === p.id;
-          const isCategoryActive = !activeQuadrant || activeQuadrant === p.category;
-          
-          if (!isPointHovered || !isCategoryActive) return null;
-
-          const tooltipWidth = 140;
-          const tooltipHeight = 56; 
-          const tx = p.x - tooltipWidth / 2;
-          const ty = p.y - tooltipHeight - 16;
-
+        {/* Tooltip */}
+        {!isMobile && !activeQuadrant && points.map((p) => {
+          if (hoveredId !== p.id) return null;
+          const tooltipWidth = 180;
+          const tooltipHeight = 36;
+          const tx = Math.max(10, Math.min(viewWidth - tooltipWidth - 10, p.x - tooltipWidth / 2));
+          const ty = Math.max(10, p.y - tooltipHeight - 15);
           return (
-            <g key={`${p.id}-refined-tooltip`} filter="url(#shadow)" className="pointer-events-none overflow-visible">
-              <rect
-                x={tx}
-                y={ty}
-                width={tooltipWidth}
-                height={tooltipHeight}
-                rx="10"
-                className={`fill-white dark:fill-slate-800 ${getCategoryBorderColor(p.category)}`}
-                strokeWidth="2"
-              />
-              <path 
-                d={`M ${p.x - 6} ${ty + tooltipHeight} L ${p.x} ${ty + tooltipHeight + 6} L ${p.x + 6} ${ty + tooltipHeight} Z`}
-                className={`fill-white dark:fill-slate-800 ${getCategoryBorderColor(p.category)}`}
-                strokeWidth="2"
-              />
-              <foreignObject x={tx + 10} y={ty + 8} width={tooltipWidth - 20} height={tooltipHeight - 16}>
-                <div className="flex flex-col h-full justify-center">
-                  <div className="text-[9px] leading-[1.1] font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight break-words text-left">
-                    {p.name}
-                  </div>
-                  <div className={`text-[7px] mt-1 font-bold uppercase tracking-wider ${getMaturityTextColor(p.maturity)} text-left`}>
-                    {p.maturity} Level
-                  </div>
-                </div>
-              </foreignObject>
+            <g key={`${p.id}-tooltip`} className="pointer-events-none">
+              <rect x={tx} y={ty} width={tooltipWidth} height={tooltipHeight} rx="8" fill="#0f172a" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+              <text x={tx + tooltipWidth/2} y={ty + tooltipHeight/2} textAnchor="middle" dominantBaseline="central" fill="white" className="text-[10px] font-bold uppercase tracking-tight">
+                {p.name}
+              </text>
             </g>
           );
         })}
