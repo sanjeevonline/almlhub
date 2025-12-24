@@ -75,11 +75,11 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
 
   return (
     <div className="h-full flex flex-col overflow-y-auto no-scrollbar bg-[#030712] scroll-smooth">
-      {/* Radar Section - Leaner Ribbon Style in selection view */}
+      {/* Radar Section - Tightened spacing */}
       <div className={`flex-none w-full transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col items-center justify-center bg-blue-500/5 border-b border-white/5 relative overflow-hidden ${
         selectedQuadrant 
-          ? 'h-[50px] md:h-[70px]' 
-          : 'h-[320px] md:h-[80vh] py-4'
+          ? 'h-[40px] md:h-[60px]' 
+          : 'h-[240px] md:h-[60vh] py-1'
       }`}>
         {selectedQuadrant && (
           <>
@@ -92,7 +92,7 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" className="transition-transform group-hover:-translate-x-1"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
               </button>
             </div>
-            {/* Centered Title Overlay - Leaner typography */}
+            {/* Centered Title Overlay */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-center z-10">
               <h2 className="text-[10px] md:text-sm font-black text-white/40 uppercase tracking-[0.6em] animate-in fade-in duration-700 whitespace-nowrap">
                 {selectedQuadrant}
@@ -163,42 +163,42 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
       </div>
 
       {/* Integrated Card Grid */}
-      <div className="flex-1 w-full p-4 md:p-10 bg-[#030712] pb-32">
+      <div className="flex-1 w-full p-2 md:p-10 bg-[#030712] pb-32">
         <div className="max-w-[1400px] mx-auto">
           {filteredItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 animate-in fade-in slide-in-from-bottom duration-500">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 md:gap-4 animate-in fade-in slide-in-from-bottom duration-500">
               {filteredItems.map(item => {
                 const catColor = getCategoryColor(item.category);
                 return (
                   <div 
                     key={item.id}
                     onClick={() => setSelectedCompetency(item)}
-                    className="group relative bg-[#0f172a]/40 p-5 rounded-2xl border border-white/5 hover:border-blue-500/30 hover:bg-[#0f172a]/60 transition-all cursor-pointer flex flex-col h-full shadow-lg"
+                    className="group relative bg-[#0f172a]/40 p-3 md:p-5 rounded-xl md:rounded-2xl border border-white/5 hover:border-blue-500/30 hover:bg-[#0f172a]/60 transition-all cursor-pointer flex flex-col h-full shadow-lg"
                     style={{ borderTop: `2px solid ${catColor}` }}
                   >
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
-                      <span className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${getMaturityStyle(item.maturity)}`}>
+                    <div className="flex flex-wrap items-center gap-1 md:gap-2 mb-2 md:mb-4">
+                      <span className={`text-[6px] md:text-[8px] font-bold uppercase tracking-widest px-1 md:px-2 py-0.5 rounded border ${getMaturityStyle(item.maturity)}`}>
                         {item.maturity}
                       </span>
                       <span 
-                        className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border"
+                        className="text-[6px] md:text-[8px] font-bold uppercase tracking-widest px-1 md:px-2 py-0.5 rounded border"
                         style={{ borderColor: `${catColor}33`, color: catColor, backgroundColor: `${catColor}11` }}
                       >
                         {item.category}
                       </span>
                     </div>
-                    <h3 className="text-[13px] font-bold text-white uppercase tracking-tight mb-3 group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-[10px] md:text-[13px] font-bold text-white uppercase tracking-tight mb-1 md:mb-3 group-hover:text-blue-400 transition-colors line-clamp-1">
                       {item.name}
                     </h3>
-                    <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-3 mb-4">
+                    <p className="text-[9px] md:text-[11px] text-slate-400 leading-relaxed line-clamp-2 mb-2 md:mb-4">
                       {item.description}
                     </p>
-                    <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
-                      <span className="text-[8px] text-slate-600 font-black uppercase tracking-wider truncate max-w-[140px]">
+                    <div className="mt-auto pt-2 md:pt-3 border-t border-white/5 flex items-center justify-between">
+                      <span className="text-[7px] md:text-[8px] text-slate-600 font-black uppercase tracking-wider truncate max-w-[80px] md:max-w-[140px]">
                         {item.keyTech || 'Foundation'}
                       </span>
-                      <div className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      <div className="text-blue-600 opacity-40 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" className="md:w-3 md:h-3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                       </div>
                     </div>
                   </div>
@@ -224,10 +224,18 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
           )}
         </div>
 
-        <div className="max-w-2xl mx-auto mt-24 p-6 rounded-3xl border border-white/5 bg-white/5 text-center">
-          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em] leading-relaxed">
-            AI & GENAI STRATEGY FRAMEWORK &bull; SANJEEV ONLINE
+        <div className="max-w-3xl mx-auto mt-24 p-8 rounded-[2.5rem] border border-white/5 bg-white/[0.02] text-center space-y-3">
+          <p className="text-[11px] font-black text-white uppercase tracking-[0.4em]">
+            AI & GENAI STRATEGY FRAMEWORK
           </p>
+          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed max-w-xl mx-auto">
+            A comprehensive roadmap for enterprise intelligence, architectural excellence, and strategic implementation curated by <span className="text-blue-500">Sanjeev Kumar</span>.
+          </p>
+          <div className="pt-4 flex items-center justify-center gap-4 opacity-30 grayscale pointer-events-none">
+             <div className="h-[1px] w-12 bg-slate-700"></div>
+             <img src="https://www.sanjeevonline.com/favicon.ico" className="w-5 h-5" alt="" />
+             <div className="h-[1px] w-12 bg-slate-700"></div>
+          </div>
         </div>
       </div>
 
