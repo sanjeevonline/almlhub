@@ -76,10 +76,10 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
   return (
     <div className="h-full flex flex-col overflow-y-auto no-scrollbar bg-[#030712] scroll-smooth">
       {/* Radar Section - Tightened spacing */}
-      <div className={`flex-none w-full transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col items-center justify-center bg-blue-500/5 border-b border-white/5 relative overflow-hidden ${
+      <div className={`flex-none w-full transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col items-center justify-center bg-blue-500/5 border-b border-white/5 relative ${
         selectedQuadrant 
-          ? 'h-[40px] md:h-[60px]' 
-          : 'h-[240px] md:h-[60vh] py-1'
+          ? 'h-[40px] md:h-[60px] overflow-hidden' 
+          : 'h-[320px] md:h-[70vh] py-4'
       }`}>
         {selectedQuadrant && (
           <>
@@ -101,7 +101,7 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
           </>
         )}
 
-        <div className={`w-full h-full max-w-5xl flex items-center justify-center ${selectedQuadrant ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <div className={`w-full h-full max-w-6xl flex items-center justify-center ${selectedQuadrant ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
            <TechnicalRadar 
               onQuadrantClick={(q) => setSelectedQuadrant(q as Category)} 
               onPointClick={(item) => setSelectedCompetency(item)}
@@ -163,8 +163,8 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
       </div>
 
       {/* Integrated Card Grid */}
-      <div className="flex-1 w-full p-2 md:p-10 bg-[#030712] pb-32">
-        <div className="max-w-[1400px] mx-auto">
+      <div className="flex-1 w-full p-2 md:p-10 bg-[#030712] flex flex-col">
+        <div className="max-w-[1400px] mx-auto w-full">
           {filteredItems.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 md:gap-4 animate-in fade-in slide-in-from-bottom duration-500">
               {filteredItems.map(item => {
@@ -224,17 +224,20 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
           )}
         </div>
 
-        <div className="max-w-3xl mx-auto mt-24 p-8 rounded-[2.5rem] border border-white/5 bg-white/[0.02] text-center space-y-3">
-          <p className="text-[11px] font-black text-white uppercase tracking-[0.4em]">
-            AI & GENAI STRATEGY FRAMEWORK
-          </p>
-          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed max-w-xl mx-auto">
-            A comprehensive roadmap for enterprise intelligence, architectural excellence, and strategic implementation curated by <span className="text-blue-500">Sanjeev Kumar</span>.
-          </p>
-          <div className="pt-4 flex items-center justify-center gap-4 opacity-30 grayscale pointer-events-none">
-             <div className="h-[1px] w-12 bg-slate-700"></div>
-             <img src="https://www.sanjeevonline.com/favicon.ico" className="w-5 h-5" alt="" />
-             <div className="h-[1px] w-12 bg-slate-700"></div>
+        {/* Footer expanded space */}
+        <div className="flex-grow flex flex-col justify-center py-24">
+          <div className="max-w-3xl mx-auto w-full p-8 rounded-[2.5rem] border border-white/5 bg-white/[0.02] text-center space-y-3 shadow-2xl">
+            <p className="text-[11px] font-black text-white uppercase tracking-[0.4em]">
+              AI & GENAI STRATEGY FRAMEWORK
+            </p>
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed max-w-xl mx-auto">
+              A comprehensive roadmap for enterprise intelligence, architectural excellence, and strategic implementation curated by <span className="text-blue-500">Sanjeev Kumar</span>.
+            </p>
+            <div className="pt-4 flex items-center justify-center gap-4 opacity-30 grayscale pointer-events-none">
+               <div className="h-[1px] w-12 bg-slate-700"></div>
+               <img src="https://www.sanjeevonline.com/favicon.ico" className="w-5 h-5" alt="" />
+               <div className="h-[1px] w-12 bg-slate-700"></div>
+            </div>
           </div>
         </div>
       </div>

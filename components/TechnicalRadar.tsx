@@ -104,10 +104,10 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
   };
 
   return (
-    <div className={`w-full h-full bg-transparent flex flex-col items-center justify-center overflow-visible ${isMobile ? 'px-6' : ''}`}>
+    <div className={`w-full h-full bg-transparent flex flex-col items-center justify-center overflow-visible ${isMobile ? 'px-6' : 'p-4 md:p-8'}`}>
       <svg 
         viewBox={getViewBox()} 
-        className="w-full h-auto transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-visible"
+        className="max-w-full max-h-full w-auto h-auto transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-visible"
         preserveAspectRatio="xMidYMid meet"
       >
         <defs>
