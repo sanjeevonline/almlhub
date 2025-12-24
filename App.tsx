@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { Category, CompetencyTerm, CompetencyData } from './types';
@@ -78,26 +79,26 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-[#030712] text-slate-100 font-sans overflow-hidden">
-      <header className="flex-none bg-[#030712] border-b border-white/5 px-6 py-4 flex items-center justify-between shadow-xl z-50 relative">
+      <header className="flex-none bg-[#030712] border-b border-white/5 px-6 py-5 flex items-center justify-between shadow-xl z-50 relative">
         <div className="flex items-center">
           <a 
             href="https://www.sanjeevonline.com" 
-            className="flex items-center gap-3 group transition-opacity hover:opacity-80"
+            className="flex items-center group transition-opacity hover:opacity-80"
             title="Back to sanjeevonline.com"
           >
-            <div className="w-9 h-9 bg-white/95 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/10 flex-none ring-1 ring-blue-600/20 group-hover:ring-blue-600/40 transition-all">
-              <span className="text-blue-600 font-black text-xs tracking-tight">./</span>
+            <div className="flex items-center text-xl md:text-2xl font-black tracking-tighter select-none">
+              <span className="text-cyan-400">.</span>
+              <span className="text-cyan-400">/</span>
+              <span className="text-white ml-0.5">SK_PROFILE</span>
             </div>
           </a>
         </div>
 
-        {/* Center-aligned Page Title */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-           <h1 className="text-sm md:text-lg font-black text-white uppercase tracking-[0.5em] text-center">AI RADAR</h1>
-        </div>
-
-        <div className="hidden md:block">
-           <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Strategy & Intelligence</span>
+        {/* Right-aligned Title and Metadata */}
+        <div className="flex flex-col items-end text-right">
+          <h1 className="text-sm md:text-lg font-black text-white uppercase tracking-[0.5em] leading-none mb-1">
+            AI RADAR
+          </h1>
         </div>
       </header>
 
