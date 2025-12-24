@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Category, CompetencyTerm, MaturityLevel } from '../types';
 import TechnicalRadar from './TechnicalRadar';
 
 interface Props {
-  onViewChange?: (view: 'glossary' | 'radar') => void;
   allCompetencies: CompetencyTerm[];
 }
 
 const RADAR_COLORS: Record<Category, string> = {
-  Techniques: '#4da1a9',
-  Tools: '#71a078',
-  Platforms: '#d68f0c',
-  Governance: '#f1647e',
+  Techniques: '#3b82f6', // Bright Brand Blue
+  Tools: '#06b6d4',      // Cyan-Teal
+  Platforms: '#6366f1',  // Indigo
+  Governance: '#94a3b8', // Cool Slate
 };
 
 const MATURITY_DESC: Record<MaturityLevel, string> = {
@@ -21,12 +20,12 @@ const MATURITY_DESC: Record<MaturityLevel, string> = {
   Experimental: 'Early stage research, high risk/reward potential.'
 };
 
-const RadarView: React.FC<Props> = ({ onViewChange, allCompetencies }) => {
+const RadarView: React.FC<Props> = ({ allCompetencies }) => {
   const [selectedQuadrant, setSelectedQuadrant] = useState<Category | null>(null);
   const [selectedCompetency, setSelectedCompetency] = useState<CompetencyTerm | null>(null);
+  const [search, setSearch] = useState('');
   const [showLegend, setShowLegend] = useState(false);
 
-  const QUADRANTS: Category[] = ['Techniques', 'Tools', 'Platforms', 'Governance'];
   const MATURITIES: MaturityLevel[] = ['Adopt', 'Trial', 'Assess', 'Experimental'];
 
   const parseTechnicalData = (raw?: string) => {
@@ -47,45 +46,62 @@ const RadarView: React.FC<Props> = ({ onViewChange, allCompetencies }) => {
 
   const getMaturityColor = (level: MaturityLevel) => {
     switch (level) {
-      case 'Adopt': return 'text-emerald-400';
-      case 'Trial': return 'text-indigo-400';
-      case 'Assess': return 'text-amber-400';
-      case 'Experimental': return 'text-purple-400';
+      case 'Adopt': return 'text-blue-400';
+      case 'Trial': return 'text-cyan-400';
+      case 'Assess': return 'text-indigo-400';
+      case 'Experimental': return 'text-slate-400';
     }
   };
 
-  const getCategoryStyle = (category: Category) => {
-    const color = RADAR_COLORS[category];
-    return {
-      borderColor: `${color}33`,
-      color: color,
-      backgroundColor: `${color}11`
-    };
+  const getMaturityStyle = (level: MaturityLevel) => {
+    switch (level) {
+      case 'Adopt': return 'text-blue-400 border-blue-500/30 bg-blue-500/5';
+      case 'Trial': return 'text-cyan-400 border-cyan-500/30 bg-cyan-500/5';
+      case 'Assess': return 'text-indigo-400 border-indigo-500/30 bg-indigo-500/5';
+      case 'Experimental': return 'text-slate-400 border-slate-500/30 bg-slate-500/5';
+    }
   };
 
   const getCategoryColor = (category: Category) => RADAR_COLORS[category] || '#94a3b8';
 
+  const filteredItems = useMemo(() => {
+    return allCompetencies.filter(item => {
+      const matchesQuadrant = !selectedQuadrant || item.category === selectedQuadrant;
+      const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || 
+                           item.description.toLowerCase().includes(search.toLowerCase());
+      return matchesQuadrant && matchesSearch;
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }, [allCompetencies, selectedQuadrant, search]);
+
   return (
-    <div className="h-full flex flex-col overflow-y-auto no-scrollbar bg-slate-950">
-      {/* Radar Section - Optimized padding and height for mobile */}
-      <div className={`flex-none w-full transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col items-center justify-center bg-black/20 border-b border-slate-900 relative overflow-hidden ${
+    <div className="h-full flex flex-col overflow-y-auto no-scrollbar bg-[#030712] scroll-smooth">
+      {/* Radar Section - Leaner Ribbon Style in selection view */}
+      <div className={`flex-none w-full transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col items-center justify-center bg-blue-500/5 border-b border-white/5 relative overflow-hidden ${
         selectedQuadrant 
-          ? 'h-[80px] md:h-[120px]' 
-          : 'h-[280px] md:h-[80vh] py-2 md:py-8'
+          ? 'h-[50px] md:h-[70px]' 
+          : 'h-[320px] md:h-[80vh] py-4'
       }`}>
         {selectedQuadrant && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-30">
-            <button 
-              onClick={() => setSelectedQuadrant(null)}
-              className="p-2 rounded-full bg-slate-800 text-white hover:bg-rose-600 transition-all active:scale-90 shadow-xl border border-white/5"
-              title="Return to Full Radar"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </button>
-          </div>
+          <>
+            <div className="absolute left-6 top-1/2 -translate-y-1/2 z-30">
+              <button 
+                onClick={() => setSelectedQuadrant(null)}
+                className="p-1.5 rounded-lg bg-slate-900/80 backdrop-blur-sm text-white hover:bg-blue-600 transition-all active:scale-95 shadow-xl border border-white/10 group flex items-center justify-center"
+                title="Back to Full Radar"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" className="transition-transform group-hover:-translate-x-1"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              </button>
+            </div>
+            {/* Centered Title Overlay - Leaner typography */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-center z-10">
+              <h2 className="text-[10px] md:text-sm font-black text-white/40 uppercase tracking-[0.6em] animate-in fade-in duration-700 whitespace-nowrap">
+                {selectedQuadrant}
+              </h2>
+            </div>
+          </>
         )}
 
-        <div className="w-full h-full max-w-5xl flex items-center justify-center pointer-events-auto">
+        <div className={`w-full h-full max-w-5xl flex items-center justify-center ${selectedQuadrant ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
            <TechnicalRadar 
               onQuadrantClick={(q) => setSelectedQuadrant(q as Category)} 
               onPointClick={(item) => setSelectedCompetency(item)}
@@ -95,91 +111,122 @@ const RadarView: React.FC<Props> = ({ onViewChange, allCompetencies }) => {
         </div>
       </div>
 
-      {/* Collapsible Maturity Legend */}
-      <div className={`flex-none w-full bg-slate-950 border-b border-slate-900/50 transition-all duration-500 overflow-hidden ${selectedQuadrant ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}>
-        <div className="max-w-[1400px] mx-auto">
-          <button 
-            onClick={() => setShowLegend(!showLegend)}
-            className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-900/40 transition-colors group"
-          >
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-300 transition-colors">
-              Maturity Level Definitions
-            </span>
-            <div className={`transition-transform duration-300 ${showLegend ? 'rotate-180' : ''}`}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-600"><path d="M6 9l6 6 6-6"/></svg>
+      {/* Filter & Action Bar */}
+      <div className="sticky top-0 z-40 bg-[#030712]/80 backdrop-blur-md border-b border-white/5 px-6 py-3">
+        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="relative w-full md:w-80">
+            <input 
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={`Search in ${selectedQuadrant ? selectedQuadrant : 'Radar'}...`}
+              className="w-full bg-[#0f172a] border border-white/10 rounded-xl py-2 pl-9 pr-4 text-[10px] font-medium focus:ring-1 focus:ring-blue-500/50 outline-none placeholder:text-slate-600 text-white"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </div>
-          </button>
-          
-          <div className={`overflow-hidden transition-all duration-300 ease-in-out ${showLegend ? 'max-h-96 opacity-100 mb-8' : 'max-h-0 opacity-0'}`}>
-            <div className="px-6 grid grid-cols-2 md:grid-cols-4 gap-6">
-              {MATURITIES.map(m => (
-                <div key={m} className="space-y-1">
-                  <h5 className={`text-[10px] font-black uppercase tracking-widest ${getMaturityColor(m)}`}>
-                    {m}
-                  </h5>
-                  <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
-                    {MATURITY_DESC[m]}
-                  </p>
-                </div>
-              ))}
+          </div>
+
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => setShowLegend(!showLegend)}
+              className="flex items-center gap-2 group"
+            >
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-300 transition-colors">
+                Maturity Definitions
+              </span>
+              <div className={`transition-transform duration-300 ${showLegend ? 'rotate-180' : ''}`}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" className="text-slate-600"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+            </button>
+            <div className="text-[9px] font-bold text-blue-600 uppercase tracking-widest bg-blue-600/10 px-2.5 py-1 rounded-lg border border-blue-600/20">
+              {filteredItems.length} Concepts
             </div>
           </div>
         </div>
       </div>
 
-      {/* Grid List Section */}
-      <div className="flex-none w-full p-6 md:p-16 bg-slate-950 pb-20">
-        <div className={`max-w-[1400px] mx-auto flex flex-col gap-10 md:gap-16`}>
-          {QUADRANTS
-            .filter(q => !selectedQuadrant || selectedQuadrant === q)
-            .map(quad => {
-              const quadItems = allCompetencies.filter(i => i.category === quad);
-              if (quadItems.length === 0) return null;
-              const catColor = getCategoryColor(quad);
-              
-              return (
-                <div key={quad} className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom duration-500">
-                  <div className={`flex items-center gap-4 ${selectedQuadrant ? 'hidden md:flex' : 'flex'}`}>
-                    <h3 className="text-lg md:text-2xl font-bold uppercase tracking-tight" style={{ color: catColor }}>
-                      {quad}
+      {/* Maturity Legend Dropdown */}
+      <div className={`flex-none w-full bg-[#030712] border-b border-white/5 transition-all duration-300 overflow-hidden ${showLegend ? 'max-h-96 opacity-100 py-6' : 'max-h-0 opacity-0'}`}>
+        <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+          {MATURITIES.map(m => (
+            <div key={m} className="space-y-1">
+              <h5 className={`text-[9px] font-black uppercase tracking-widest ${getMaturityColor(m)}`}>
+                {m}
+              </h5>
+              <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
+                {MATURITY_DESC[m]}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Integrated Card Grid */}
+      <div className="flex-1 w-full p-4 md:p-10 bg-[#030712] pb-32">
+        <div className="max-w-[1400px] mx-auto">
+          {filteredItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 animate-in fade-in slide-in-from-bottom duration-500">
+              {filteredItems.map(item => {
+                const catColor = getCategoryColor(item.category);
+                return (
+                  <div 
+                    key={item.id}
+                    onClick={() => setSelectedCompetency(item)}
+                    className="group relative bg-[#0f172a]/40 p-5 rounded-2xl border border-white/5 hover:border-blue-500/30 hover:bg-[#0f172a]/60 transition-all cursor-pointer flex flex-col h-full shadow-lg"
+                    style={{ borderTop: `2px solid ${catColor}` }}
+                  >
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      <span className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${getMaturityStyle(item.maturity)}`}>
+                        {item.maturity}
+                      </span>
+                      <span 
+                        className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border"
+                        style={{ borderColor: `${catColor}33`, color: catColor, backgroundColor: `${catColor}11` }}
+                      >
+                        {item.category}
+                      </span>
+                    </div>
+                    <h3 className="text-[13px] font-bold text-white uppercase tracking-tight mb-3 group-hover:text-blue-400 transition-colors">
+                      {item.name}
                     </h3>
-                    <div className="h-px flex-1 bg-slate-900"></div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-3 mb-4">
+                      {item.description}
+                    </p>
+                    <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
+                      <span className="text-[8px] text-slate-600 font-black uppercase tracking-wider truncate max-w-[140px]">
+                        {item.keyTech || 'Foundation'}
+                      </span>
+                      <div className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-                    {MATURITIES.map(maturity => {
-                      const maturityItems = quadItems.filter(i => i.maturity === maturity);
-                      if (maturityItems.length === 0) return null;
-
-                      return (
-                        <div key={maturity} className="space-y-3">
-                          <h4 className={`text-[9px] font-bold uppercase tracking-widest pb-1 border-b border-slate-900/50 ${getMaturityColor(maturity)}`}>
-                            {maturity}
-                          </h4>
-                          <ul className="space-y-1.5">
-                            {maturityItems.sort((a,b) => a.name.localeCompare(b.name)).map(item => (
-                              <li key={item.id}>
-                                <button 
-                                  onClick={() => setSelectedCompetency(item)}
-                                  className="text-[10px] md:text-[11px] font-medium text-slate-500 hover:text-white uppercase tracking-tight text-left transition-all hover:translate-x-1 block w-full leading-tight"
-                                >
-                                  {item.name}
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-          })}
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+              <div className="w-16 h-16 bg-[#0f172a] rounded-2xl flex items-center justify-center text-slate-700 border border-white/5">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white uppercase tracking-tight">No Results Found</h4>
+                <p className="text-xs text-slate-500 mt-1">Try adjusting your filters or search terms.</p>
+              </div>
+              <button 
+                onClick={() => {setSearch(''); setSelectedQuadrant(null);}}
+                className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-white transition-colors"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="max-w-2xl mx-auto mt-16 md:mt-24 p-5 md:p-6 rounded-2xl border border-slate-900 bg-slate-900/20 text-center">
-          <p className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
-            Personal Perspective &bull; This radar reflects a point-in-time synthesis of the AI/ML landscape based on professional exposure and field experience.
+        <div className="max-w-2xl mx-auto mt-24 p-6 rounded-3xl border border-white/5 bg-white/5 text-center">
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em] leading-relaxed">
+            AI & GENAI STRATEGY FRAMEWORK &bull; SANJEEV ONLINE
           </p>
         </div>
       </div>
@@ -189,49 +236,66 @@ const RadarView: React.FC<Props> = ({ onViewChange, allCompetencies }) => {
         const techData = parseTechnicalData(selectedCompetency.details);
         const definition = techData.definition || selectedCompetency.description;
         const catColor = getCategoryColor(selectedCompetency.category);
-        const catStyles = getCategoryStyle(selectedCompetency.category);
         return (
-          <div className="fixed inset-0 z-[100] flex flex-col bg-slate-950/90 backdrop-blur-xl p-4 animate-in fade-in">
-             <div className="flex-1 flex flex-col bg-slate-900 w-full max-w-3xl mx-auto shadow-2xl overflow-hidden md:my-10 rounded-[2rem] border border-white/5 relative">
+          <div className="fixed inset-0 z-[100] flex flex-col bg-[#030712]/95 backdrop-blur-xl p-4 animate-in fade-in">
+             <div className="flex-1 flex flex-col bg-[#0f172a] w-full max-w-3xl mx-auto shadow-2xl overflow-hidden md:my-10 rounded-[2.5rem] border border-white/10 relative">
                 
-                <div className="flex-none px-8 py-8 md:px-12 flex justify-between items-start">
-                  <div className="space-y-3">
+                <div className="flex-none px-8 py-10 md:px-14 flex justify-between items-start border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+                  <div className="space-y-4">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase tracking-widest ${getMaturityColor(selectedCompetency.maturity)} border-current bg-slate-950/20`}>
+                      <span className={`px-2.5 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest ${getMaturityColor(selectedCompetency.maturity)} border-current bg-white/5`}>
                         {selectedCompetency.maturity}
                       </span>
                       <span 
-                        className="px-2 py-0.5 rounded border text-[8px] font-bold uppercase tracking-widest"
-                        style={catStyles}
+                        className="px-2.5 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest"
+                        style={{ borderColor: `${catColor}44`, color: catColor, backgroundColor: `${catColor}11` }}
                       >
                         {selectedCompetency.category}
                       </span>
                     </div>
-                    <h2 className="text-xl md:text-3xl font-bold text-white uppercase tracking-tight leading-tight">{selectedCompetency.name}</h2>
+                    <h2 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none">{selectedCompetency.name}</h2>
                   </div>
                   <button 
                     onClick={() => setSelectedCompetency(null)} 
-                    className="p-2 bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all"
+                    className="p-2.5 bg-slate-800 rounded-2xl text-slate-500 hover:text-white hover:bg-red-600 transition-all border border-white/10 shadow-lg"
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-12 space-y-10 no-scrollbar">
-                  <section className="space-y-3">
-                    <h4 className="text-[9px] font-bold text-slate-700 uppercase tracking-widest">Executive Brief</h4>
-                    <p className="text-xl font-bold text-slate-200 leading-snug whitespace-pre-wrap">{definition}</p>
+                <div className="flex-1 overflow-y-auto px-8 md:px-14 pb-14 space-y-12 no-scrollbar mt-10">
+                  <section className="space-y-4">
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] border-l-2 border-blue-600 pl-4">Executive Brief</h4>
+                    <p className="text-xl md:text-2xl font-medium text-slate-100 leading-[1.3] whitespace-pre-wrap">{definition}</p>
                   </section>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 space-y-2">
-                      <h4 className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">Architecture</h4>
-                      <p className="text-xs text-slate-400 leading-relaxed">{techData.application || "Critical standard for enterprise AI integration."}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-8 rounded-3xl bg-blue-600/5 border border-blue-600/10 space-y-3 shadow-inner">
+                      <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        Architectural Context
+                      </h4>
+                      <p className="text-[13px] text-slate-400 font-medium leading-relaxed">{techData.application || "Critical standard for modern enterprise-grade AI systems and production infrastructure."}</p>
                     </div>
-                    <div className="p-6 rounded-2xl bg-rose-500/5 border border-rose-500/10 space-y-2">
-                      <h4 className="text-[9px] font-bold text-rose-400 uppercase tracking-widest">Risk Profile</h4>
-                      <p className="text-xs text-slate-400 leading-relaxed italic">{techData.risks || "Requires continuous monitoring and policy enforcement."}</p>
+                    <div className="p-8 rounded-3xl bg-slate-500/5 border border-slate-500/10 space-y-3 shadow-inner">
+                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                        Strategic Risks
+                      </h4>
+                      <p className="text-[13px] text-slate-400 font-medium leading-relaxed italic">{techData.risks || "Requires rigorous validation within specific security boundaries and operational domain constraints."}</p>
                     </div>
+                  </div>
+
+                  <div className="pt-8 border-t border-white/5">
+                     <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                           <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Key Technology Stack</p>
+                           <p className="text-sm font-bold text-white uppercase tracking-tight">{selectedCompetency.keyTech || 'Foundation Standard'}</p>
+                        </div>
+                        <div className="hidden md:block">
+                           <img src="https://www.sanjeevonline.com/favicon.ico" className="w-6 h-6 grayscale opacity-20" alt="" />
+                        </div>
+                     </div>
                   </div>
                 </div>
              </div>

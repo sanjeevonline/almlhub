@@ -12,10 +12,10 @@ interface Props {
 }
 
 const RADAR_COLORS: Record<Category, string> = {
-  Techniques: '#4da1a9',
-  Tools: '#71a078',
-  Platforms: '#d68f0c',
-  Governance: '#f1647e',
+  Techniques: '#3b82f6',
+  Tools: '#06b6d4',
+  Platforms: '#6366f1',
+  Governance: '#94a3b8',
 };
 
 const GlossaryView: React.FC<Props> = ({ 
@@ -48,17 +48,17 @@ const GlossaryView: React.FC<Props> = ({
 
   const getMaturityStyle = (level: MaturityLevel) => {
     switch (level) {
-      case 'Adopt': return 'text-emerald-400 border-emerald-500/30 bg-emerald-500/5';
-      case 'Trial': return 'text-indigo-400 border-indigo-500/30 bg-indigo-500/5';
-      case 'Assess': return 'text-amber-400 border-amber-500/30 bg-amber-500/5';
-      case 'Experimental': return 'text-purple-400 border-purple-500/30 bg-purple-500/5';
+      case 'Adopt': return 'text-blue-400 border-blue-500/30 bg-blue-500/5';
+      case 'Trial': return 'text-cyan-400 border-cyan-500/30 bg-cyan-500/5';
+      case 'Assess': return 'text-indigo-400 border-indigo-500/30 bg-indigo-500/5';
+      case 'Experimental': return 'text-slate-400 border-slate-500/30 bg-slate-500/5';
     }
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-slate-950">
+    <div className="h-full flex flex-col overflow-hidden bg-[#030712]">
       {/* Search & Filter */}
-      <div className="flex-none p-4 md:p-6 bg-slate-900 border-b border-slate-800 space-y-4 shadow-sm z-10">
+      <div className="flex-none p-4 md:p-6 bg-[#0f172a]/50 border-b border-white/5 space-y-4 shadow-sm z-10 backdrop-blur-sm">
         <div className="flex gap-2">
           <div className="relative flex-1">
             <input 
@@ -66,7 +66,7 @@ const GlossaryView: React.FC<Props> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search concepts..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-xs font-medium focus:ring-1 focus:ring-indigo-500/50 outline-none placeholder:text-slate-600 text-white"
+              className="w-full bg-[#030712] border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-xs font-medium focus:ring-1 focus:ring-blue-500/50 outline-none placeholder:text-slate-600 text-white"
             />
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -74,7 +74,7 @@ const GlossaryView: React.FC<Props> = ({
           </div>
           <button 
             onClick={() => onViewChange?.('radar')}
-            className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-700 transition-all"
+            className="px-4 py-2 bg-white/5 text-slate-300 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5"
           >
             Radar View
           </button>
@@ -82,17 +82,17 @@ const GlossaryView: React.FC<Props> = ({
         <div className="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
           {categories.map(cat => {
             const isActive = activeCategory === cat;
-            const color = cat !== 'All' ? getCategoryColor(cat) : '#6366f1';
+            const color = cat !== 'All' ? getCategoryColor(cat) : '#2563eb';
             return (
               <button 
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 style={{ 
                   backgroundColor: isActive ? color : 'transparent',
-                  borderColor: isActive ? color : 'rgba(30, 41, 59, 1)',
-                  color: isActive ? 'white' : 'rgba(100, 116, 139, 1)'
+                  borderColor: isActive ? color : 'rgba(255, 255, 255, 0.05)',
+                  color: isActive ? 'white' : 'rgba(148, 163, 184, 1)'
                 }}
-                className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest border flex-shrink-0 transition-all hover:border-slate-600`}
+                className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest border flex-shrink-0 transition-all hover:border-white/20`}
               >
                 {cat}
               </button>
@@ -102,7 +102,7 @@ const GlossaryView: React.FC<Props> = ({
       </div>
 
       {/* Grid Area */}
-      <div className="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8 bg-slate-950">
+      <div className="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
           {items.map(item => {
             const catColor = getCategoryColor(item.category);
@@ -110,7 +110,7 @@ const GlossaryView: React.FC<Props> = ({
               <div 
                 key={item.id}
                 onClick={() => setSelectedItem(item)}
-                className="relative bg-slate-900/40 p-4 rounded-xl border border-slate-800/60 hover:border-slate-700 hover:bg-slate-900 transition-all cursor-pointer group flex flex-col h-full"
+                className="relative bg-[#0f172a]/40 p-4 rounded-xl border border-white/5 hover:border-blue-500/30 hover:bg-white/5 transition-all cursor-pointer group flex flex-col h-full"
                 style={{ borderTop: `2px solid ${catColor}` }}
               >
                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
@@ -127,9 +127,9 @@ const GlossaryView: React.FC<Props> = ({
                 <h3 className="text-[11px] font-semibold text-slate-300 uppercase tracking-tight group-hover:text-white transition-colors line-clamp-2 mb-3">
                   {item.name}
                 </h3>
-                <div className="mt-auto pt-2 border-t border-slate-800/40">
+                <div className="mt-auto pt-2 border-t border-white/5">
                    <p className="text-[7px] text-slate-600 font-bold uppercase tracking-wider truncate">
-                    {item.keyTech || 'Foundational Concept'}
+                    {item.keyTech || 'Foundation Level'}
                   </p>
                 </div>
               </div>
@@ -138,16 +138,16 @@ const GlossaryView: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Optimized Detail Modal */}
+      {/* Detail Modal */}
       {selectedItem && (() => {
         const techData = parseTechnicalData(selectedItem.details);
         const definition = techData.definition || selectedItem.description;
         const catColor = getCategoryColor(selectedItem.category);
         return (
-          <div className="fixed inset-0 z-[100] flex flex-col bg-slate-950/90 backdrop-blur-md animate-in fade-in">
-            <div className="flex-1 flex flex-col bg-slate-900 w-full max-w-2xl mx-auto shadow-2xl overflow-hidden md:my-12 md:rounded-[2rem] border border-white/5 relative">
+          <div className="fixed inset-0 z-[100] flex flex-col bg-[#030712]/95 backdrop-blur-md animate-in fade-in">
+            <div className="flex-1 flex flex-col bg-[#0f172a] w-full max-w-2xl mx-auto shadow-2xl overflow-hidden md:my-12 md:rounded-[2rem] border border-white/10 relative">
               
-              <div className="flex-none px-8 py-8 md:px-12 flex justify-between items-start">
+              <div className="flex-none px-8 py-8 md:px-12 flex justify-between items-start border-b border-white/5">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase tracking-widest ${getMaturityStyle(selectedItem.maturity)}`}>
@@ -166,31 +166,31 @@ const GlossaryView: React.FC<Props> = ({
                 </div>
                 <button 
                   onClick={() => setSelectedItem(null)} 
-                  className="p-2 bg-slate-800 rounded-lg text-slate-500 hover:text-white transition-colors"
+                  className="p-2 bg-slate-800 rounded-lg text-slate-500 hover:text-white transition-colors border border-white/5"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-12 space-y-8 no-scrollbar">
+              <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-12 space-y-8 no-scrollbar mt-8">
                 <section className="space-y-3">
-                   <h4 className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Description</h4>
+                   <h4 className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Executive Brief</h4>
                    <p className="text-lg font-medium text-slate-200 leading-snug whitespace-pre-wrap">
                     {definition}
                    </p>
                 </section>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2 p-6 rounded-2xl bg-slate-800/30 border border-slate-800">
-                    <h4 className="text-[9px] font-bold text-emerald-500/80 uppercase tracking-widest border-b border-white/5 pb-1">Value</h4>
+                  <div className="space-y-2 p-6 rounded-2xl bg-white/5 border border-white/5">
+                    <h4 className="text-[9px] font-bold text-blue-400/80 uppercase tracking-widest border-b border-white/5 pb-1">Architecture</h4>
                     <p className="text-xs font-medium text-slate-400 leading-relaxed">
-                      {techData.application || "Strategic architecture requirement for high-scale production AI."}
+                      {techData.application || "Strategic capability for production-grade AI infrastructure."}
                     </p>
                   </div>
-                  <div className="space-y-2 p-6 rounded-2xl bg-slate-800/30 border border-slate-800">
-                    <h4 className="text-[9px] font-bold text-rose-500/80 uppercase tracking-widest border-b border-white/5 pb-1">Risk</h4>
-                    <p className="text-xs font-medium text-slate-400 leading-relaxed">
-                      {techData.risks || "Demands rigorous validation and policy alignment layers."}
+                  <div className="space-y-2 p-6 rounded-2xl bg-white/5 border border-white/5">
+                    <h4 className="text-[9px] font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-1">Assessment</h4>
+                    <p className="text-xs font-medium text-slate-400 leading-relaxed italic">
+                      {techData.risks || "Demands rigorous validation within specific security boundaries."}
                     </p>
                   </div>
                 </div>

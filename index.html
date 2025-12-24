@@ -3,11 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Radar</title>
+    <title>AI Radar | Sanjeev Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                blue: '#2563eb',
+                dark: '#030712',
+                slate: '#1e293b'
+              }
+            }
+          }
+        }
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,8 +27,8 @@
     <style>
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #020617;
-        color: #f1f5f9;
+        background-color: #030712;
+        color: #f8fafc;
         overflow-x: hidden;
       }
       .no-scrollbar::-webkit-scrollbar {
@@ -41,6 +52,11 @@
       }
       .fade-in { animation-name: fade-in; }
       .slide-in-from-bottom { animation-name: slide-in-from-bottom; }
+      
+      /* Smooth transitions for theme matching */
+      .transition-brand {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
     </style>
     <script type="importmap">
 {

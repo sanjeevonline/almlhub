@@ -23,7 +23,6 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
   const quadWidth = (viewWidth - gap) / 2;
   const quadHeight = (viewHeight - gap) / 2;
 
-  // Expanded first ring (Adopt) significantly as it usually contains the most items
   const ringRadii = [110, 165, 215, 260];
 
   useEffect(() => {
@@ -39,7 +38,6 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
 
     QUADRANTS.forEach((q) => {
       const qIdx = QUADRANTS.indexOf(q);
-      // Increased buffer (15 degrees) from quadrant edges to keep blips centered
       const qAngles = [
         { start: 195, end: 255 }, // Techniques (Top Left)
         { start: 285, end: 345 }, // Tools (Top Right)
@@ -57,8 +55,6 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
         const endAngle = qAngles[qIdx].end;
         const angleRange = endAngle - startAngle;
 
-        // More sophisticated distribution: grid-like approach within the polar segment
-        // to maximize distance between blips
         const itemCount = groupItems.length;
         const rows = Math.ceil(Math.sqrt(itemCount * (outerR - innerR) / (angleRange * 2)));
         const cols = Math.ceil(itemCount / rows);
@@ -67,7 +63,6 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
           const row = Math.floor(i / cols);
           const col = i % cols;
           
-          // Add deterministic jitter based on index
           const rowJitter = (Math.sin(i * 0.7) * 0.2);
           const colJitter = (Math.cos(i * 0.9) * 0.2);
 
@@ -114,55 +109,44 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
             <feComponentTransfer><feFuncA type="linear" slope="0.9"/></feComponentTransfer>
             <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
+          <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
         </defs>
 
         {/* Quadrant Rectangles */}
         <g>
-          <rect x="0" y="0" width={quadWidth} height={quadHeight} fill="#3e98a0" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Techniques')} />
-          <rect x={quadWidth + gap} y="0" width={quadWidth} height={quadHeight} fill="#6a9a73" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Tools')} />
-          <rect x="0" y={quadHeight + gap} width={quadWidth} height={quadHeight} fill="#d48c0b" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Platforms')} />
-          <rect x={quadWidth + gap} y={quadHeight + gap} width={quadWidth} height={quadHeight} fill="#f1647e" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Governance')} />
+          <rect x="0" y="0" width={quadWidth} height={quadHeight} fill="#1e293b" className="transition-all duration-500 cursor-pointer hover:fill-blue-900/40" onClick={() => onQuadrantClick?.('Techniques')} />
+          <rect x={quadWidth + gap} y="0" width={quadWidth} height={quadHeight} fill="#0f172a" className="transition-all duration-500 cursor-pointer hover:fill-blue-900/40" onClick={() => onQuadrantClick?.('Tools')} />
+          <rect x="0" y={quadHeight + gap} width={quadWidth} height={quadHeight} fill="#0f172a" className="transition-all duration-500 cursor-pointer hover:fill-blue-900/40" onClick={() => onQuadrantClick?.('Platforms')} />
+          <rect x={quadWidth + gap} y={quadHeight + gap} width={quadWidth} height={quadHeight} fill="#1e293b" className="transition-all duration-500 cursor-pointer hover:fill-blue-900/40" onClick={() => onQuadrantClick?.('Governance')} />
         </g>
 
-        {/* Maturity Rings & Labels - Increased visibility */}
+        {/* Maturity Rings & Labels - Hidden in active quadrant view */}
         <g className={`pointer-events-none transition-opacity duration-500 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
           {ringRadii.map((r, i) => (
             <React.Fragment key={i}>
-              <circle 
-                cx={centerX} cy={centerY} 
-                r={r} 
-                fill="none" 
-                stroke="white" 
-                strokeOpacity="0.6" 
-                strokeWidth="2" 
-                strokeDasharray="4 4"
-              />
-              {/* Ring Labels - Balanced positioning */}
-              <text 
-                x={centerX} 
-                y={centerY - r + 16} 
-                textAnchor="middle" 
-                fill="white" 
-                fillOpacity="0.7" 
-                className="text-[9px] font-black uppercase tracking-[0.3em] pointer-events-none"
-              >
+              <circle cx={centerX} cy={centerY} r={r} fill="none" stroke="#3b82f6" strokeOpacity="0.15" strokeWidth="4" filter="url(#ringGlow)"/>
+              <circle cx={centerX} cy={centerY} r={r} fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="2" strokeDasharray="6 8"/>
+              <text x={centerX} y={centerY - r + 18} textAnchor="middle" fill="white" fillOpacity="0.6" className="text-[10px] font-black uppercase tracking-[0.4em] pointer-events-none drop-shadow-md">
                 {RINGS[i]}
               </text>
             </React.Fragment>
           ))}
         </g>
 
-        {/* Quadrant Labels - Lighter opacity to emphasize rings/blips */}
-        <g className="pointer-events-none fill-white font-bold transition-all duration-700">
-          <text x={quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Techniques' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Techniques' ? 0 : 0.6 }}>Techniques</text>
-          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Tools' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Tools' ? 0 : 0.6 }}>Tools</text>
-          <text x={quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Platforms' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Platforms' ? 0 : 0.6 }}>Platforms</text>
-          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Governance' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Governance' ? 0 : 0.6 }}>Governance</text>
+        {/* Quadrant Labels - Hidden in zoomed view to prevent double-titles */}
+        <g className={`pointer-events-none fill-white/30 font-black uppercase transition-all duration-700 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
+          <text x={quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Techniques</text>
+          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Tools</text>
+          <text x={quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Platforms</text>
+          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Governance</text>
         </g>
 
-        {/* Blips */}
-        <g className={`transition-opacity duration-500 ${activeQuadrant || isMobile ? 'opacity-0' : 'opacity-100'}`}>
-          {points.map((p) => {
+        {/* Blips - Only visible in full radar view now */}
+        <g className={`transition-opacity duration-500 ${activeQuadrant || (isMobile && !activeQuadrant) ? 'opacity-0' : 'opacity-100'}`}>
+          {!activeQuadrant && points.map((p) => {
             const isHovered = hoveredId === p.id;
             return (
               <g 
@@ -178,10 +162,10 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
                 <circle
                   cx={p.x} cy={p.y}
                   r={isHovered ? 10 : 5.5}
-                  fill="white"
-                  fillOpacity={isHovered ? 1 : 0.85}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
+                  fill={isHovered ? "#3b82f6" : "white"}
+                  fillOpacity={isHovered ? 1 : 0.9}
+                  stroke="rgba(0,0,0,0.4)"
+                  strokeWidth="1.5"
                   className="transition-all duration-300"
                   filter={isHovered ? "url(#blipShadow)" : ""}
                 />
@@ -199,7 +183,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
           const ty = Math.max(10, p.y - tooltipHeight - 15);
           return (
             <g key={`${p.id}-tooltip`} className="pointer-events-none">
-              <rect x={tx} y={ty} width={tooltipWidth} height={tooltipHeight} rx="8" fill="#0f172a" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+              <rect x={tx} y={ty} width={tooltipWidth} height={tooltipHeight} rx="8" fill="#1e293b" stroke="rgba(59, 130, 246, 0.5)" strokeWidth="1.5" />
               <text x={tx + tooltipWidth/2} y={ty + tooltipHeight/2} textAnchor="middle" dominantBaseline="central" fill="white" className="text-[10px] font-bold uppercase tracking-tight">
                 {p.name}
               </text>
