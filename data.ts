@@ -1,8 +1,10 @@
 
 import { CompetencyData } from './types';
 
+// Fixed property 'glossary' is missing in type '{}' error by uncommenting the property
 export const COMPETENCY_DB: CompetencyData = {
-  /*glossary: [
+  glossary: [
+    /*
     { 
       id: 'transformers', 
       name: 'Transformers', 
@@ -653,6 +655,8 @@ export const COMPETENCY_DB: CompetencyData = {
       description: 'Noise-based privacy protection for datasets.',
       details: "### Definition\nDifferential Privacy is a mathematical framework that adds a precisely calculated amount of 'noise' to a dataset so that individual records cannot be identified, but group patterns remain.\n\n### Application\nTraining AI on highly sensitive personal data (e.g. medical or financial) while providing a mathematical guarantee that no individual's private data can be extracted.\n\n### Risks\nAccuracy loss: There is a direct trade-off (the 'Epsilon Budget') between how much privacy you have and how accurate the resulting model will be."
     },
+
+    */
     { 
       id: 'constitutional-ai', 
       name: 'Constitutional AI', 
@@ -690,7 +694,6 @@ export const COMPETENCY_DB: CompetencyData = {
       details: "### Definition\nAGI Governance refers to the long-term policy frameworks and international agreements needed to manage systems that reach or exceed human-level intelligence across all domains.\n\n### Application\nExistential risk management. It involves planning for 'fast takeoff' scenarios where an AI could theoretically escape human control or manipulate global systems.\n\n### Risks\nSpeculative nature: Because AGI doesn't exist yet, these frameworks are based on theoretical models and simulations, making them hard to test against real-world reality."
     }
   ]
-  */
 };
 
 export const RADAR_DATA = COMPETENCY_DB;
