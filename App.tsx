@@ -104,8 +104,8 @@ const App: React.FC = () => {
             </svg>
           </div>
           <div className="flex flex-col -space-y-1">
-            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">GenAI</span>
-            <h1 className="text-sm font-black tracking-tight text-white uppercase whitespace-nowrap">AI Radar</h1>
+            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">AI</span>
+            <h1 className="text-sm font-black tracking-tight text-white uppercase whitespace-nowrap">Radar</h1>
           </div>
         </div>
         
