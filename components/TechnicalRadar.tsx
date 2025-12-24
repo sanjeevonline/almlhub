@@ -1,16 +1,17 @@
+
 import React, { useMemo, useState } from 'react';
-import { COMPETENCY_DB } from '../data';
 import { Category, CompetencyTerm, MaturityLevel, RadarItem } from '../types';
 
 interface Props {
   onQuadrantClick?: (quadrant: string) => void;
+  onPointClick?: (item: CompetencyTerm) => void;
   activeQuadrant?: Category | null;
+  allCompetencies: CompetencyTerm[];
 }
 
 const RINGS: MaturityLevel[] = ['Adopt', 'Trial', 'Assess', 'Experimental'];
 const QUADRANTS: Category[] = ['Governance', 'Platforms', 'Techniques', 'Tools'];
 
-// Radii factors adjusted: 'Adopt' is the widest, outer rings are slightly more compressed.
 const RING_RADII_FACTORS = [0.44, 0.64, 0.82, 0.98];
 
 const getStableSeed = (id: string) => {
@@ -21,7 +22,7 @@ const getStableSeed = (id: string) => {
   return Math.abs(hash);
 };
 
-const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) => {
+const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, activeQuadrant, allCompetencies }) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [hoveredRing, setHoveredRing] = useState<string | null>(null);
   const size = 600;
@@ -30,7 +31,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
 
   const points = useMemo(() => {
     const groups: Record<string, CompetencyTerm[]> = {};
-    COMPETENCY_DB.glossary.forEach(item => {
+    allCompetencies.forEach(item => {
       const key = `${item.category}-${item.maturity}`;
       if (!groups[key]) groups[key] = [];
       groups[key].push(item);
@@ -91,7 +92,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
     });
 
     return itemsWithCoords;
-  }, [ringRadius, center]);
+  }, [ringRadius, center, allCompetencies]);
 
   const getBlipColor = (category: Category) => {
     switch (category) {
@@ -105,11 +106,11 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
 
   const getBlipFill = (category: Category) => {
     switch (category) {
-      case 'Platforms': return 'fill-rose-50';
-      case 'Governance': return 'fill-emerald-50';
-      case 'Techniques': return 'fill-indigo-50';
-      case 'Tools': return 'fill-amber-50';
-      default: return 'fill-slate-50';
+      case 'Platforms': return 'fill-rose-50 dark:fill-rose-900/40';
+      case 'Governance': return 'fill-emerald-50 dark:fill-emerald-900/40';
+      case 'Techniques': return 'fill-indigo-50 dark:fill-indigo-900/40';
+      case 'Tools': return 'fill-amber-50 dark:fill-amber-900/40';
+      default: return 'fill-slate-50 dark:fill-slate-800';
     }
   };
 
@@ -125,11 +126,11 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
 
   const getMaturityTextColor = (level: MaturityLevel) => {
     switch (level) {
-      case 'Adopt': return 'text-emerald-600';
-      case 'Trial': return 'text-indigo-600';
-      case 'Assess': return 'text-amber-600';
-      case 'Experimental': return 'text-purple-600';
-      default: return 'text-slate-600';
+      case 'Adopt': return 'text-emerald-600 dark:text-emerald-400';
+      case 'Trial': return 'text-indigo-600 dark:text-indigo-400';
+      case 'Assess': return 'text-amber-600 dark:text-amber-400';
+      case 'Experimental': return 'text-purple-600 dark:text-purple-400';
+      default: return 'text-slate-600 dark:text-slate-400';
     }
   };
 
@@ -146,7 +147,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
   };
 
   return (
-    <div className="relative w-full aspect-square bg-white rounded-[2.5rem] p-2 flex items-center justify-center border border-slate-200 shadow-inner overflow-hidden">
+    <div className="relative w-full aspect-square bg-white dark:bg-slate-800/50 rounded-[2.5rem] p-2 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-inner overflow-hidden transition-colors duration-300">
       <svg 
         viewBox={getViewBox()} 
         className="w-full h-full drop-shadow-sm overflow-visible transition-all duration-[850ms] ease-[cubic-bezier(0.65,0,0.35,1)]"
@@ -165,15 +166,14 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
           </filter>
         </defs>
 
-        {/* Quadrant Backdrops */}
         {QUADRANTS.map((q, i) => {
           const isHighlighted = activeQuadrant === q;
           const isHidden = activeQuadrant && activeQuadrant !== q;
           const qPaths = [
-            `M ${center} ${center} L ${size} ${center} A ${center} ${center} 0 0 1 ${center} ${size} Z`, // Governance (BR)
-            `M ${center} ${center} L ${center} ${size} A ${center} ${center} 0 0 1 0 ${center} Z`,      // Platforms (BL)
-            `M ${center} ${center} L 0 ${center} A ${center} ${center} 0 0 1 ${center} 0 Z`,      // Techniques (TL)
-            `M ${center} ${center} L ${center} 0 A ${center} ${center} 0 0 1 ${size} ${center} Z`,      // Tools (TR)
+            `M ${center} ${center} L ${size} ${center} A ${center} ${center} 0 0 1 ${center} ${size} Z`,
+            `M ${center} ${center} L ${center} ${size} A ${center} ${center} 0 0 1 0 ${center} Z`,
+            `M ${center} ${center} L 0 ${center} A ${center} ${center} 0 0 1 ${center} 0 Z`,
+            `M ${center} ${center} L ${center} 0 A ${center} ${center} 0 0 1 ${size} ${center} Z`,
           ];
           
           return (
@@ -183,13 +183,12 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
               onClick={() => onQuadrantClick?.(q)}
               className={`transition-all duration-500 cursor-pointer ${
                 isHidden ? 'opacity-0 pointer-events-none' : 
-                isHighlighted ? 'fill-indigo-500/[0.03] stroke-none' : 'fill-transparent hover:fill-slate-100/50 active:fill-slate-200'
+                isHighlighted ? 'fill-indigo-500/[0.04] dark:fill-indigo-400/[0.04] stroke-none' : 'fill-transparent hover:fill-slate-100/50 dark:hover:fill-slate-700/50 active:fill-slate-200'
               }`}
             />
           );
         })}
 
-        {/* Ring Backgrounds */}
         {RINGS.map((ring, i) => {
           const isHovered = hoveredRing === ring;
           const isActive = !activeQuadrant;
@@ -203,8 +202,8 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
               fill="none"
               stroke={
                 isExperimental
-                  ? (isHovered ? "rgba(147, 51, 234, 0.4)" : "rgba(147, 51, 234, 0.15)")
-                  : (isHovered ? "rgba(148, 163, 184, 0.4)" : "rgba(148, 163, 184, 0.15)")
+                  ? (isHovered ? "rgba(147, 51, 234, 0.5)" : "rgba(147, 51, 234, 0.2)")
+                  : (isHovered ? "rgba(148, 163, 184, 0.5)" : "rgba(148, 163, 184, 0.15)")
               }
               strokeWidth={isHovered ? "2.5" : "1"}
               strokeDasharray={isExperimental ? "6 4" : "none"}
@@ -215,7 +214,6 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
           );
         })}
 
-        {/* Quadrant Separators */}
         {!activeQuadrant && (
           <>
             <line x1={center} y1={0} x2={center} y2={size} stroke="rgba(148, 163, 184, 0.2)" strokeWidth="1" strokeDasharray="4 4" className="pointer-events-none" />
@@ -223,7 +221,6 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
           </>
         )}
 
-        {/* Quadrant Labels */}
         {[
           { text: 'TOOLS', x: center + 145, y: center - 145, id: 'Tools' },
           { text: 'TECHNIQUES', x: center - 145, y: center - 145, id: 'Techniques' },
@@ -235,7 +232,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
               x={q.x}
               y={q.y}
               textAnchor="middle"
-              className="text-[14px] font-black tracking-[0.4em] pointer-events-none fill-white stroke-white stroke-[4px] opacity-80"
+              className="text-[14px] font-black tracking-[0.4em] pointer-events-none fill-white dark:fill-slate-900 stroke-white dark:stroke-slate-900 stroke-[4px] opacity-80"
             >
               {q.text}
             </text>
@@ -244,7 +241,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
               y={q.y}
               textAnchor="middle"
               className={`text-[14px] font-black tracking-[0.4em] pointer-events-none ${
-                activeQuadrant === q.id ? 'fill-indigo-600' : 'fill-slate-400'
+                activeQuadrant === q.id ? 'fill-indigo-600 dark:fill-indigo-400' : 'fill-slate-400 dark:fill-slate-600'
               }`}
             >
               {q.text}
@@ -252,14 +249,13 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
           </g>
         ))}
 
-        {/* Ring Labels */}
         {RINGS.map((ring, i) => (
           <g key={ring} className={`transition-all duration-500 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
             <text
               x={center}
               y={center - (RING_RADII_FACTORS[i] * ringRadius) + 12}
               textAnchor="middle"
-              className="text-[8px] font-black uppercase tracking-widest pointer-events-none fill-white stroke-white stroke-[3px]"
+              className="text-[8px] font-black uppercase tracking-widest pointer-events-none fill-white dark:fill-slate-900 stroke-white dark:stroke-slate-900 stroke-[3px]"
             >
               {ring}
             </text>
@@ -268,7 +264,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
               y={center - (RING_RADII_FACTORS[i] * ringRadius) + 12}
               textAnchor="middle"
               className={`text-[8px] font-black uppercase tracking-widest pointer-events-none ${
-                ring === 'Experimental' ? 'fill-purple-500' : 'fill-slate-500'
+                ring === 'Experimental' ? 'fill-purple-500' : 'fill-slate-500 dark:fill-slate-600'
               }`}
             >
               {ring}
@@ -276,7 +272,6 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
           </g>
         ))}
 
-        {/* Blip Circles Layer */}
         {points.map((p) => {
           const isActive = !activeQuadrant || activeQuadrant === p.category;
           const isHovered = hoveredId === p.id;
@@ -286,9 +281,13 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
               key={p.id} 
               onMouseEnter={() => setHoveredId(p.id)}
               onMouseLeave={() => setHoveredId(null)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onPointClick?.(p);
+              }}
               className={`transition-all duration-700 ease-in-out cursor-pointer ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'}`}
             >
-              {isHovered && (isActive) && (
+              {isHovered && isActive && (
                 <circle
                   cx={p.x}
                   cy={p.y}
@@ -315,7 +314,6 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
           );
         })}
 
-        {/* Tooltips Layer with Multi-line Wrapping Support */}
         {points.map((p) => {
           const isPointHovered = hoveredId === p.id;
           const isCategoryActive = !activeQuadrant || activeQuadrant === p.category;
@@ -335,20 +333,20 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, activeQuadrant }) =>
                 width={tooltipWidth}
                 height={tooltipHeight}
                 rx="10"
-                className={`fill-white ${getCategoryBorderColor(p.category)}`}
+                className={`fill-white dark:fill-slate-800 ${getCategoryBorderColor(p.category)}`}
                 strokeWidth="2"
               />
               <path 
                 d={`M ${p.x - 6} ${ty + tooltipHeight} L ${p.x} ${ty + tooltipHeight + 6} L ${p.x + 6} ${ty + tooltipHeight} Z`}
-                className={`fill-white ${getCategoryBorderColor(p.category)}`}
+                className={`fill-white dark:fill-slate-800 ${getCategoryBorderColor(p.category)}`}
                 strokeWidth="2"
               />
               <foreignObject x={tx + 10} y={ty + 8} width={tooltipWidth - 20} height={tooltipHeight - 16}>
-                <div xmlns="http://www.w3.org/1999/xhtml" className="flex flex-col h-full justify-center">
-                  <div className="text-[9px] leading-[1.1] font-medium text-slate-800 uppercase tracking-tight break-words text-left">
+                <div className="flex flex-col h-full justify-center">
+                  <div className="text-[9px] leading-[1.1] font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight break-words text-left">
                     {p.name}
                   </div>
-                  <div className={`text-[7px] mt-1 font-semibold uppercase tracking-wider ${getMaturityTextColor(p.maturity)} text-left`}>
+                  <div className={`text-[7px] mt-1 font-bold uppercase tracking-wider ${getMaturityTextColor(p.maturity)} text-left`}>
                     {p.maturity} Level
                   </div>
                 </div>

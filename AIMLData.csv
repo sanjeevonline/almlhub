@@ -1,0 +1,585 @@
+id,name,category,maturity,impact,description,keyTech,details
+transformers,Transformers,Techniques,Adopt,Critical,The foundation of modern AI using self-attention mechanisms.,Attention Is All You Need,"### Definition
+The Transformer is the foundational architecture of modern AI, replacing RNNs/LSTMs with a parallelizable self-attention mechanism. It allows models to weight the significance of different parts of input data dynamically.
+
+### Application
+It is the 'compute engine' inside GPT-4, Gemini, and Claude. In enterprise settings, understanding Transformer blocks is critical for debugging context window limits and optimizing inference costs.
+
+### Risks
+Quadratic complexity (O(N²)) means that doubling input text quadruples the compute required. Without attention-optimization (like FlashAttention), long-document processing becomes economically unviable."
+slms,Small Language Models (SLMs),Techniques,Adopt,Strategic,"Efficient, high-performance models for edge and privacy-first use.",Phi-3, Gemma,"### Definition
+Small Language Models (SLMs) are high-efficiency models typically under 10B parameters, trained on curated, high-quality datasets rather than raw web-scrapes.
+
+### Application
+Ideal for edge computing, mobile devices, and high-privacy on-premise deployments where data cannot leave the local network. They provide GPT-3.5 level reasoning at a fraction of the VRAM cost.
+
+### Risks
+Narrower 'world knowledge' compared to frontier models. They are prone to failure on highly abstract or 'out-of-distribution' reasoning tasks."
+finetuning,Finetuning,Techniques,Adopt,Very High,Adapting pre-trained models to specific domain data.,PyTorch, Axolotl,"### Definition
+Finetuning is the process of taking a pre-trained 'base' model and performing additional training on a specialized, smaller dataset to adapt its behavior or knowledge.
+
+### Application
+Used for aligning a model to a specific corporate brand voice, legal nomenclature, or specialized medical terminology that was under-represented in the original training data.
+
+### Risks
+Catastrophic Forgetting: Over-tuning on specific data can cause the model to lose its general reasoning capabilities or 'forget' basic logic."
+peft-lora,PEFT / LoRA,Techniques,Adopt,High,Efficient tuning of a small subset of model parameters.,HuggingFace PEFT,"### Definition
+Parameter-Efficient Fine-Tuning (PEFT), specifically Low-Rank Adaptation (LoRA), freezes the original model weights and only trains a tiny 'adapter' layer (often <1% of the total parameters).
+
+### Application
+Allows enterprises to maintain hundreds of specialized 'expert' models for different tasks (Legal, HR, Code) using a single base-model instance, saving millions in GPU memory.
+
+### Risks
+LoRA adapters may not capture deep semantic changes as effectively as full-weight finetuning for extremely complex domain shifts."
+rlhf,RLHF (Preference Alignment),Techniques,Adopt,Critical,Reinforcement learning from human feedback for safety and intent.,,"### Definition
+Reinforcement Learning from Human Feedback (RLHF) involves a secondary training phase where human evaluators rank model outputs to create a reward signal.
+
+### Application
+This is the critical step that turns a raw 'next-token predictor' into a helpful assistant that follows instructions and avoids toxic content.
+
+### Risks
+Reward Hacking: The model might learn to produce 'pleasing' but factually incorrect answers if evaluators prioritize tone over truth."
+dpo,Direct Preference Opt. (DPO),Techniques,Adopt,Very High,Direct optimization of model preferences without reward models.,,"### Definition
+Direct Preference Optimization (DPO) is a mathematically streamlined alternative to RLHF that optimizes the model policy directly from human preference pairs without needing a separate reward model.
+
+### Application
+Used to align smaller models efficiently, offering a more stable and less computationally expensive way to implement 'alignment' compared to PPO-based RLHF.
+
+### Risks
+It can be sensitive to the quality of the preference pairs; noisy data in the preference set can lead to skewed or biased model behaviors."
+moe,Mixture of Experts (MoE),Techniques,Adopt,Very High,Activating specialized parameter groups for efficiency.,Mixtral 8x7B,"### Definition
+Mixture of Experts (MoE) uses a 'routing' layer to only activate a small subset of the model's total parameters for any given token.
+
+### Application
+Allows a model like Mixtral 8x7B to have the power of a 47B parameter model while only using the compute of a 12B parameter model during inference.
+
+### Risks
+Deployment complexity is high; while compute is low, the VRAM requirement remains massive because the entire model (all experts) must usually be loaded into memory."
+quantization,Quantization & Optimization,Techniques,Adopt,Very High,Reducing precision to increase inference speed and lower memory.,GGUF, AWQ,"### Definition
+Quantization is the process of reducing the numerical precision of model weights (e.g., from 16-bit floats to 4-bit integers) to reduce memory and compute.
+
+### Application
+Allows a 70B parameter model that would usually require 140GB of VRAM to run on a single 48GB GPU with minimal loss in reasoning quality.
+
+### Risks
+Precision Loss: Aggressive quantization (below 4 bits) can significantly degrade the model's ability to handle complex math or subtle logic."
+semantic-chunking,Semantic Chunking,Techniques,Adopt,High,Splitting text based on meaning boundaries for RAG.,,"### Definition
+Semantic Chunking is a text segmentation technique that uses embeddings or model-based analysis to find natural topic boundaries in a document.
+
+### Application
+Used in RAG to ensure that retrieved segments contain complete thoughts, avoiding mid-sentence cuts that destroy context for the model.
+
+### Risks
+Computational overhead: It requires running embedding models during the ingestion phase, which is more expensive than fixed-length character splitting."
+semantic-similarity,Semantic Similarity,Techniques,Adopt,Very High,Mathematical closeness of concepts in vector space.,,"### Definition
+Semantic Similarity is the measure of how conceptually related two pieces of text are, typically calculated using cosine similarity on vector embeddings.
+
+### Application
+It is the mathematical heart of semantic search and recommendation engines, allowing systems to find 'apples' when a user searches for 'fruit'.
+
+### Risks
+Embedding drift: As models evolve, the vector space can change, potentially leading to 'nearest neighbors' that are mathematically close but logically unrelated."
+context-window,Context Window,Techniques,Adopt,High,Total token memory available in a single inference turn.,,"### Definition
+The Context Window is the maximum sequence length a model can process in a single pass, including system instructions, input text, and generated output.
+
+### Application
+Determines whether a model can analyze an entire book, codebase, or legal transcript without needing to summarize or split the data into multiple turns.
+
+### Risks
+'Lost in the Middle': Models often have higher accuracy at the start and end of their context window, frequently failing to recall information buried in the middle."
+agentic-rag,Agentic RAG,Techniques,Trial,Critical,AI planning and executing multi-step retrieval strategies.,LangGraph,"### Definition
+Agentic RAG moves beyond simple 'search-and-stuff' retrieval by giving the AI agency. The model first plans a search strategy, evaluates the search results for quality, and decides if it needs more info before answering.
+
+### Application
+Critical for complex research tasks where the answer isn't in a single document but requires synthesizing data from multiple disparate sources.
+
+### Risks
+Recursive loops and high token consumption. Without strict 'exit conditions,' an agent might continue searching indefinitely, leading to massive API bills."
+prompt-chaining,Prompt Chaining,Techniques,Trial,High,Sequencing multiple prompts to solve complex tasks.,,"### Definition
+Prompt Chaining is a design pattern where the output of one model call is passed as the input to a subsequent model call to perform complex, multi-stage reasoning.
+
+### Application
+Used for high-reliability data pipelines, such as 'Extract' -> 'Validate' -> 'Format' -> 'Translate'. It reduces hallucination by focusing the model on one task at a time.
+
+### Risks
+Latency and cost: Every 'link' in the chain requires a full round-trip to the model, significantly increasing the time to generate a final result."
+knowledge-distillation,Knowledge Distillation,Techniques,Trial,High,Transferring knowledge from teacher models to student models.,,"### Definition
+Knowledge Distillation is a compression technique where a smaller 'student' model is trained to reproduce the behavior and output distribution of a larger 'teacher' model.
+
+### Application
+Creating high-speed, domain-specific models for production where the cost and latency of a massive frontier model are prohibitive.
+
+### Risks
+'Dark knowledge' loss: Students often capture the teacher's surface-level patterns but miss the deep reasoning capabilities and edge-case robustness."
+synthetic-data,Synthetic Data,Techniques,Trial,Very High,AI-generated training data for low-resource domains.,Gretel.ai,"### Definition
+Synthetic Data is information that is artificially generated by an AI model rather than collected from real-world events or users.
+
+### Application
+Used to train models in privacy-sensitive domains (like healthcare) or to 'bootstrap' models for rare edge cases where real data is scarce.
+
+### Risks
+Model Collapse: If models are trained too heavily on their own outputs, they can lose variability and start producing repetitive, low-quality 'gibberish'."
+data-distillation,Data Distillation,Techniques,Trial,Medium,Compressing datasets into essential representative knowledge.,,"### Definition
+Data Distillation is a dataset reduction method that identifies and extracts the most information-dense training samples to create a smaller, high-quality training set.
+
+### Application
+Accelerating training cycles and reducing storage costs by removing redundant or noisy data points that don't contribute to model convergence.
+
+### Risks
+Overfitting: If the distillation process is too aggressive, the resulting dataset may lose the diversity needed for the model to generalize to real-world data."
+long-term-memory,Long-Term Agent Memory,Techniques,Trial,Strategic,Persistence architectures for cross-session agent knowledge.,MemGPT,"### Definition
+Long-Term Agent Memory utilizes external storage (databases) and ranking algorithms to allow AI agents to recall user preferences and past interactions over months or years.
+
+### Application
+Enabling persistent 'co-pilots' that learn how you code, write, or manage projects, providing contextually relevant assistance based on historic context.
+
+### Risks
+Memory management: Deciding what to 'forget' is hard. Storing every interaction leads to high costs and noise during retrieval."
+graph-rag,GraphRAG,Techniques,Assess,High,Retrieval augmented by structured knowledge graphs.,Neo4j,"### Definition
+GraphRAG combines vector embeddings with a structured Knowledge Graph (KG). It maps entities and their relationships (e.g., 'Company A' -> 'Acquired' -> 'Company B').
+
+### Application
+Solves the 'multi-hop' problem where a model needs to find connections between concepts that don't share similar keywords but are logically linked.
+
+### Risks
+Generating the initial Knowledge Graph is computationally expensive and requires high-quality source data to avoid 'garbage-in, garbage-out' scenarios."
+ai-alignment,AI Alignment,Techniques,Assess,Very High,Ensuring model goals match human values and intent.,,"### Definition
+AI Alignment is the technical and philosophical challenge of ensuring that an AI system's objectives and behaviors precisely match human values and instructions.
+
+### Application
+Fundamental to safe AI deployment. It involves techniques like RLHF, DPO, and Constitutional AI to prevent models from pursuing harmful goals.
+
+### Risks
+Specification Gaming: Models may find 'shortcuts' that satisfy the reward function (making it look like they are aligned) without actually understanding the underlying value."
+world-models,World Models,Techniques,Experimental,Strategic,AI internal simulations of physical or logical systems.,,"### Definition
+A World Model is a component that enables an agent to simulate the future state of its environment, allowing it to 'imagine' consequences before acting.
+
+### Application
+Essential for advanced robotics and autonomous vehicles, where the AI needs to predict the physical movement of objects or the logical outcomes of complex actions.
+
+### Risks
+Sim-to-Real gap: If the world model's internal simulation is even slightly inaccurate, the agent's real-world actions can become erratic or dangerous."
+liquid-networks,Liquid Neural Networks,Techniques,Experimental,High,Dynamically adjusting architectures for time-series data.,MIT Liquid AI,"### Definition
+Liquid Neural Networks are a new class of AI inspired by the biological brains of small organisms, using differential equations to create a continuous-time model.
+
+### Application
+Superior performance for time-series data, such as autonomous driving, drone navigation, and financial forecasting where temporal context is fluid.
+
+### Risks
+Immature tooling: Standard libraries like PyTorch are still optimizing for these architectures, making them harder to deploy in large-scale production."
+federated-learning,Federated Learning,Techniques,Experimental,Medium,Decentralized training without moving raw data.,,"### Definition
+Federated Learning allows models to be trained on decentralized data residing on end-user devices or servers without ever moving the raw data to a central server.
+
+### Application
+Privacy-preserving training for mobile phones (auto-complete) or healthcare institutions sharing model insights without sharing private patient records.
+
+### Risks
+Inconsistent data quality (Non-IID) and high communication overhead between the central 'aggregator' and the thousands of edge devices."
+neuro-symbolic-strategy,Neuro-Symbolic Strategy,Techniques,Experimental,Very High,Combining neural learning with symbolic logical rules.,,"### Definition
+Neuro-Symbolic AI combines the pattern-recognition power of neural networks with the formal logic and interpretability of symbolic systems.
+
+### Application
+Creating AI that can explain its reasoning in mathematical terms, essential for scientific discovery, formal software verification, and regulated decision making.
+
+### Risks
+Integration friction: Marrying the 'fuzzy' world of gradients with the 'exact' world of logic rules is a complex engineering and mathematical challenge."
+gpu-clusters,GPU Clusters,Platforms,Adopt,Strategic,Distributed compute for training and heavy inference.,NVIDIA H100,"### Definition
+GPU Clusters are massive arrays of interconnected GPUs (often thousands of H100s or B200s) designed for high-throughput, low-latency parallel processing.
+
+### Application
+The physical infrastructure required to train frontier models (like GPT-4) or run massive real-time inference clusters for enterprise-grade AI products.
+
+### Risks
+High capital expenditure and massive power requirements. Managing thermal limits and network congestion in these clusters is a full-time engineering specialty."
+serving-infra,Serving Infrastructure,Platforms,Adopt,Critical,High-throughput model serving layers.,vLLM, Triton,"### Definition
+Serving Infrastructure refers to the software stack (engines like vLLM) that manages model loading, request batching, and KV-cache management to maximize GPU utilization.
+
+### Application
+The foundation of production AI APIs. It ensures that multiple users can query a model simultaneously without requests being blocked or timing out.
+
+### Risks
+Complex scaling: Scaling model serving is not as simple as scaling web servers. It requires deep knowledge of CUDA, VRAM limits, and network throughput."
+vector-db,Vector Databases,Platforms,Adopt,Critical,Specialized storage for high-dimensional semantic vectors.,Pinecone, Weaviate,"### Definition
+Vector Databases are specialized storage systems that index high-dimensional numerical representations (embeddings) of data to enable rapid similarity searches.
+
+### Application
+Essential for RAG systems to retrieve relevant documents based on semantic meaning rather than exact keyword matches.
+
+### Risks
+High memory usage and cost at scale. Maintaining index freshness during high-volume data updates can lead to significant latency spikes."
+dist-training,Distributed Training,Platforms,Adopt,Critical,Scaling model training across multiple compute nodes.,DeepSpeed, FSDP,"### Definition
+Distributed Training uses techniques like Data Parallelism and Model Parallelism to split a single training job across hundreds of GPUs simultaneously.
+
+### Application
+Required for any model larger than ~7B parameters. It allows researchers to train massive models in weeks rather than decades.
+
+### Risks
+Network bottlenecks: The speed of training is often limited by the interconnect (e.g. InfiniBand) rather than the raw compute power of the GPUs themselves."
+inference-opt,Inference Optimization,Platforms,Adopt,Very High,Hardware-aware acceleration of model responses.,FlashAttention,"### Definition
+Inference Optimization involves low-level kernel tuning (like FlashAttention) and hardware-specific compilation to make AI models respond faster and cheaper.
+
+### Application
+Cutting the cost per 1M tokens by 50-80% while simultaneously reducing the 'Time To First Token' (TTFT) for a better user experience.
+
+### Risks
+Hardware lock-in: Highly optimized kernels for NVIDIA H100s might not run at all on AMD GPUs or Apple silicon without significant rewrites."
+inference-latency,Inference Latency Engineering,Platforms,Adopt,High,Minimizing TTFT and total response time.,,"### Definition
+Inference Latency Engineering is the specialized practice of optimizing every microsecond of the model response loop, from network handshake to final token generation.
+
+### Application
+Critical for real-time voice synthesis and interactive chatbots where a delay of more than 500ms makes the system feel sluggish and 'un-human'.
+
+### Risks
+Throughput vs Latency trade-off: Many techniques that make a single request faster (like speculative decoding) can actually lower the total capacity of the server."
+real-time-inference-design,Real-Time Inference Design,Platforms,Adopt,Very High,Architecturing for sub-second user interactions.,,"### Definition
+Real-Time Inference Design is an architectural approach that prioritizes low-latency, streaming responses and persistent connections (WebSockets) for AI interaction.
+
+### Application
+Powering next-generation UI/UX where the AI assists the user in real-time as they type, speak, or interact with a 3D environment.
+
+### Risks
+Persistent state management: Maintaining low-latency connections for thousands of users simultaneously requires complex load balancing and edge compute strategies."
+secrets-mgmt-agents,Secrets Management for Agents,Platforms,Adopt,Critical,Secure credential injection for tool-enabled agents.,HashiCorp Vault,"### Definition
+Secrets Management for Agents is the protocol for securely providing API keys and passwords to AI agents so they can interact with tools without exposing raw credentials.
+
+### Application
+Essential for agents that access corporate databases, personal emails, or financial systems. It uses short-lived tokens and 'scoped' permissions.
+
+### Risks
+Prompt injection leakage: If an agent is not properly sandboxed, a clever user could trick it into 'printing' its internal API keys in the chat window."
+feature-store,Feature Store,Platforms,Trial,High,Unified data repository for training and serving features.,Tecton,"### Definition
+A Feature Store is a centralized repository that stores curated datasets ('features') and serves them consistently for both training and real-time inference.
+
+### Application
+Ensures that the data used to train a model is identical to the data used when the model is running in production, preventing 'training-serving skew'.
+
+### Risks
+Operational complexity: Maintaining a feature store at enterprise scale requires significant data engineering effort and high-availability infrastructure."
+llmops,LLMOps,Platforms,Trial,Strategic,Specialized operational pipelines for LLM lifecycles.,LangSmith,"### Definition
+LLMOps is the extension of MLOps to specifically handle the unique lifecycle of LLMs, including prompt versioning, context-caching, and hallucination monitoring.
+
+### Application
+The backbone of any production-grade AI product. It ensures that when you swap GPT-4o for a newer model, the entire system doesn't break due to prompt sensitivity.
+
+### Risks
+High toolchain fragmentation. The 'best-in-class' tools change monthly, risking vendor lock-in with immature platforms."
+context-caching,Context Caching,Platforms,Trial,High,Caching frequent context blocks to lower latency/cost.,,"### Definition
+Context Caching is a platform-level optimization that stores the computed state of a prompt's prefix on the GPU to avoid re-processing it for subsequent calls.
+
+### Application
+Massive cost and latency savings for RAG systems where the same 'Reference Material' or 'System Instruction' is sent with every user query.
+
+### Risks
+Cache eviction strategy: Managing which blocks of text stay on the limited GPU memory and which are deleted is a complex balancing act of cost and performance."
+depin-compute,DePIN Compute,Platforms,Experimental,High,Decentralized physical compute networks.,Akash, Render,"### Definition
+DePIN (Decentralized Physical Infrastructure Networks) Compute allows organizations to rent GPU power from a global, peer-to-peer marketplace instead of a central cloud provider.
+
+### Application
+Significant cost reduction for batch inference or fine-tuning jobs that are not time-sensitive and do not require ultra-low-latency interconnects.
+
+### Risks
+Security and uptime: Because the GPUs are owned by individuals/small providers, ensuring data privacy and 99.9% availability is much harder than with AWS/Azure."
+quantum-mlops,Quantum MLOps,Platforms,Experimental,Medium,Operating hybrid classical-quantum ML workloads.,,"### Definition
+Quantum MLOps is the early-stage field of managing the lifecycle of machine learning models that utilize quantum computers for optimization or feature mapping.
+
+### Application
+Future-facing research in molecular discovery and cryptography where classical computers hit their physical limits of complexity.
+
+### Risks
+Extreme immaturity: We are currently in the 'NISQ' (Noisy Intermediate-Scale Quantum) era, where hardware is prone to high error rates and limited qubit counts."
+rag-core,RAG (Retrieval-Augmented Generation),Tools,Adopt,Very High,Grounding models in external data for accuracy.,LlamaIndex,"### Definition
+Retrieval-Augmented Generation (RAG) is a system that retrieves relevant snippets from an external database and includes them in the prompt to ground the LLM in factual data.
+
+### Application
+The standard way to build private chatbots that answer questions about internal company docs, wikis, and customer tickets without needing to re-train the model.
+
+### Risks
+Context stuffing: If the retrieval system pulls in irrelevant or conflicting data, the model can become confused and produce incorrect answers based on the 'noise'."
+tool-use,Tool Use / Function Calling,Tools,Adopt,Critical,Models interacting with external APIs via structured calls.,,"### Definition
+Tool Use (Function Calling) allows an LLM to generate structured JSON or code that is then executed by the hosting application to perform real-world actions.
+
+### Application
+Enabling AI to 'look up the current weather', 'query a SQL database', or 'send an email' by treating the model as the reasoning core of a larger system.
+
+### Risks
+Security: An agent given access to a 'Delete User' tool must be strictly sandboxed and monitored to prevent malicious or accidental misuse of power."
+orch-frameworks,LLM Orchestration,Tools,Adopt,Very High,"Connecting models, tools, and memory into applications.",LangChain,"### Definition
+LLM Orchestration frameworks provide standardized abstractions (chains, routers, memory) to help developers build complex, multi-step AI applications.
+
+### Application
+Rapid prototyping of AI agents. They provide 'connectors' for hundreds of databases and APIs, allowing devs to focus on the logic rather than the plumbing.
+
+### Risks
+Abstraction bloat: Some frameworks can make simple tasks overly complex, making it difficult to debug the raw prompts being sent to the model."
+modular-ai,Modular AI Architecture,Tools,Adopt,High,Decoupled systems with swappable AI components.,,"### Definition
+Modular AI is a design philosophy where models, data sources, and business logic are decoupled, allowing any individual component to be upgraded without re-writing the entire stack.
+
+### Application
+Future-proofing enterprise systems. When a better embedding model or a cheaper LLM is released, you can swap it in minutes rather than weeks.
+
+### Risks
+Integration testing: Every time a model is swapped, the entire pipeline must be re-evaluated to ensure the quality of responses hasn't subtly degraded."
+multi-agent-systems,Multi-Agent Systems,Tools,Trial,Critical,Specialized agents collaborating on complex tasks.,CrewAI, AutoGen,"### Definition
+Multi-Agent Systems involve multiple autonomous 'specialist' agents (e.g., a 'Researcher' and a 'Writer') communicating to solve a complex task.
+
+### Application
+Automating software engineering (e.g., one agent writes tests, another writes code, another reviews). It breaks down monolithic problems into manageable parts.
+
+### Risks
+Cascading Failures: If the 'Researcher' agent hallucinates, every subsequent agent in the chain will base their work on false premises."
+agentic-loops,Agentic Loops,Tools,Trial,Very High,Iterative think-act-observe loops for autonomy.,,"### Definition
+Agentic Loops are iterative execution cycles where an agent performs an action, observes the result, and adjusts its plan in real-time until the goal is met.
+
+### Application
+Autonomous web browsing, self-healing code generators, and complex project management agents that need to handle unexpected errors gracefully.
+
+### Risks
+Endless loops: Without 'max iteration' caps, an agent could get stuck in a logic loop, repeatedly calling an API and wasting thousands of dollars in tokens."
+model-routing,Model Routing & Selection,Tools,Trial,High,Intelligent middleware for cost/performance optimized inference.,Martian, RouteLLM,"### Definition
+Model Routing is an intelligent middleware layer that analyzes an incoming user query and routes it to the most efficient model (e.g. GPT-4 for logic, Llama-3 for chat).
+
+### Application
+Enterprise cost optimization. By using SLMs for 80% of simple tasks, companies can save massive amounts while maintaining high quality for complex queries.
+
+### Risks
+Router latency: The extra step of analyzing the intent of the message adds a small amount of latency to every interaction."
+mcp,MCP (Model Context Protocol),Tools,Trial,Critical,Universal tool/data standard for all models.,Anthropic,"### Definition
+Model Context Protocol (MCP) is an open standard designed to decouple AI models from the data sources they use, creating a universal 'connector' for tools.
+
+### Application
+Enables a developer to build a 'GitHub tool' once and have it work instantly across Claude, Gemini, and internal custom models without custom glue code.
+
+### Risks
+As a newer standard, it faces an 'adoption cliff' where its value is limited until enough data sources and model providers commit to the protocol."
+multi-modal-arch,Multi-Modal Architecture,Tools,Trial,Very High,"Integrating vision, audio, and text into unified systems.",,"### Definition
+Multi-Modal Architecture refers to models and systems that can natively process and interlink different data types like text, images, video, and audio in a single latent space.
+
+### Application
+Next-gen customer support (watching a video of a user problem) and automated visual inspection systems where text description alone is insufficient.
+
+### Risks
+Data imbalance: Training multi-modal models is difficult because text data is vastly more structured and available than high-quality video-text pairs."
+cicd-ct,CI/CD/CT,Governance,Adopt,Critical,Continuous training integration for model updates.,,"### Definition
+CI/CD/CT (Continuous Integration, Deployment, and Training) is the practice of automating the testing and deployment of not just code, but also models and their updated weights.
+
+### Application
+Ensuring that every time you update your RAG database or fine-tune your model, it passes a suite of safety and performance benchmarks before going live.
+
+### Risks
+Pipeline complexity: Managing 'Golden Datasets' and automated evaluation metrics that actually match human judgment is a significant engineering challenge."
+model-registry,Model Registry,Governance,Adopt,Very High,Central hub for model versioning and lineage.,MLflow,"### Definition
+A Model Registry is a central repository for tracking model artifacts, versions, metadata, and lineage across the entire machine learning lifecycle.
+
+### Application
+Enterprise governance. It allows teams to know exactly which version of a model is in production, what data it was trained on, and who approved its deployment.
+
+### Risks
+Version sprawl: Without strict naming conventions, a registry can quickly become cluttered with hundreds of 'experimental' models that serve no purpose."
+monitoring-obs,Monitoring & Observability,Governance,Adopt,Critical,Tracking health and semantics in production.,,"### Definition
+AI Observability is the practice of monitoring not just 'up/down' health, but also semantic quality, token costs, and user satisfaction of model responses in real-time.
+
+### Application
+Detecting when a model starts producing 'gibberish' or becomes unhelpfully cautious due to a software update or a shift in user behavior.
+
+### Risks
+Data privacy: Monitoring model logs often means seeing raw user data, which requires strict encryption and access control to comply with GDPR/HIPAA."
+data-lineage,Observability & Lineage,Governance,Adopt,Very High,Tracking data from raw source to model input.,,"### Definition
+Data Lineage is the process of tracking the movement and transformation of data from its raw source to the moment it is consumed as a prompt or training point.
+
+### Application
+Essential for debugging RAG systems. If the AI gives a wrong answer, lineage tells you exactly which document (and which version) caused the error.
+
+### Risks
+Metadata overhead: Tracking every transformation step for petabytes of data can add significant storage and compute costs to your data platform."
+drift-detection,Drift Detection,Governance,Adopt,Very High,Detecting when data patterns or concepts shift.,,"### Definition
+Drift Detection is an automated monitoring process that flags when the distribution of incoming user data (input drift) or model accuracy (output drift) changes over time.
+
+### Application
+Critical for financial or security models where a shift in 'normal' behavior could signal new fraud patterns or market volatility that the model wasn't trained on.
+
+### Risks
+False Alarms: Natural seasonal shifts (e.g. Christmas shopping patterns) can look like drift to naive algorithms, leading to 'alert fatigue' for MLOps teams."
+experiment-tracking,Experiment Tracking,Governance,Adopt,High,Logging parameters and metrics for every run.,,"### Definition
+Experiment Tracking is the practice of logging all hyperparameters, code versions, datasets, and performance metrics for every single model training or evaluation run.
+
+### Application
+Reproducibility in AI research. It allows a scientist to 'go back in time' and recreate a successful model that was built six months ago.
+
+### Risks
+Logging noise: If too many metrics are tracked without purpose, the 'signal' of what actually makes a model better can be lost in a sea of irrelevant data charts."
+eval-harness,Evaluation Harness,Governance,Adopt,High,Automated test suites for AI performance/safety.,RAGAS,"### Definition
+An Evaluation Harness is an automated framework that subjects AI models to standardized benchmarks and proprietary test suites to measure performance and safety.
+
+### Application
+Critical for 'Golden Dataset' testing to ensure that updating a model doesn't result in performance regressions for specific customer use cases.
+
+### Risks
+Test Contamination: If benchmark questions are present in the model's training data, the results will be artificially inflated and misleading."
+data-versioning,Data Versioning,Governance,Adopt,High,Immutable snapshots of training/eval datasets.,DVC,"### Definition
+Data Versioning treats datasets like source code, creating immutable snapshots (e.g. via DVC or LakeFS) so that a model can be tied to a specific state of the data.
+
+### Application
+Legal compliance and scientific integrity. If a model's prediction is challenged, you can prove exactly what data the model had 'seen' at that point in time.
+
+### Risks
+Storage bloat: Maintaining full copies of massive datasets for every version can quickly become prohibitively expensive without 'deduplication' technology."
+model-governance,Model Governance,Governance,Adopt,Critical,Policies for safe and ethical AI deployment.,,"### Definition
+Model Governance is the framework of rules, roles, and review processes that ensure AI is used ethically, legally, and within the risk tolerance of the organization.
+
+### Application
+Setting up 'Ethics Boards' and approval workflows for new AI use cases, especially in sensitive areas like hiring, credit scoring, or healthcare.
+
+### Risks
+Red tape: Overly burdensome governance can kill innovation, causing the company to fall behind faster-moving competitors who take more calculated risks."
+guardrails,AI Guardrails,Governance,Adopt,Critical,Real-time filtering of unsafe inputs/outputs.,,"### Definition
+Guardrails are programmable security and logic layers that validate inputs and outputs in real-time. They act as a 'firewall' for AI behavior.
+
+### Application
+Ensuring a customer support bot doesn't accidentally reveal internal profit margins or use offensive language if 'jailbroken' by a user.
+
+### Risks
+High False-Positive Rates: Overly aggressive guardrails can 'lobotomize' a model, making it refuse to answer perfectly safe and valid business queries."
+red-teaming,AI Red Teaming,Governance,Adopt,Very High,Adversarial testing for model vulnerabilities.,,"### Definition
+AI Red Teaming is a security practice where 'adversarial' agents (human or AI) attempt to bypass a model's safety filters to find hidden vulnerabilities.
+
+### Application
+Proactive security. By finding a 'jailbreak' before a hacker does, an organization can update its guardrails and protect its users and brand reputation.
+
+### Risks
+Incomplete coverage: No matter how much you red-team, new 'latent' vulnerabilities can always be found by thousands of real-world users once the model is public."
+ai-identity-auth,AI Identity & Auth,Governance,Adopt,Critical,Unique identities and access control for AI agents.,OIDC,"### Definition
+AI Identity & Auth is the system of giving setiap agent a cryptographically verifiable 'Machine Identity' so it can prove who it is when accessing APIs.
+
+### Application
+Applying 'Least Privilege' security. A 'HR Bot' can only access HR databases, while a 'Code Bot' can only access specific GitHub repos, even if they share the same model.
+
+### Risks
+Identity hijacking: If an agent's identity token is stolen, a malicious actor can impersonate the agent and perform actions with its authorized permissions."
+ai-incident-killswitches,AI Incident Kill-switches,Governance,Adopt,Critical,Fail-safe mechanisms for pausing autonomous AI systems.,,"### Definition
+AI Kill-switches are manual or automated fail-safes that instantly sever an agent's access to external tools and stop all processing during an emergency.
+
+### Application
+Preventing a runaway autonomous agent from draining a corporate bank account or deleting a production database during a logic failure or attack.
+
+### Risks
+False activation: If a kill-switch is too sensitive, it could shut down mission-critical services due to a non-harmful edge case, leading to downtime."
+eu-ai-act,Regulation (EU AI Act),Governance,Adopt,Critical,Compliance with global AI risk categories.,,"### Definition
+The EU AI Act is the world's first comprehensive legal framework for AI, categorizing applications based on risk (Unacceptable, High, Limited, Minimal).
+
+### Application
+Mandatory for any organization deploying AI in the European market. It requires rigorous transparency, data governance, and human oversight for high-risk systems.
+
+### Risks
+Non-compliance can result in massive fines (up to 7% of global turnover). It may also slow down deployment speed due to heavy documentation requirements."
+bias-mitigation,Bias Mitigation,Governance,Adopt,High,Reducing algorithmic discrimination in outputs.,,"### Definition
+Bias Mitigation is the technical practice of identifying and reducing discriminatory patterns in training data or model weights to ensure fair treatment of all demographic groups.
+
+### Application
+Essential for AI used in social infrastructure (lending, hiring, law enforcement) to prevent the amplification of existing historical prejudices.
+
+### Risks
+Fairness trade-offs: Often, optimizing for one mathematical definition of 'fairness' can slightly lower the overall accuracy of the model on the general population."
+xai,Explainability (XAI),Governance,Adopt,High,Interpreting how models reach specific conclusions.,,"### Definition
+Explainable AI (XAI) is the set of techniques (like attention maps or SHAP values) that pull back the 'black box' of deep learning to show which input features influenced a result.
+
+### Application
+Building trust with domain experts (doctors, pilots, judges) who need to know 'why' a model made a specific high-stakes recommendation.
+
+### Risks
+Deceptive explanations: Some XAI methods can generate 'plausible' explanations that don't actually match the underlying mathematical reality of how the model works."
+hitl,Human-in-the-loop (HITL),Governance,Adopt,Strategic,Manual review integrated into automated workflows.,,"### Definition
+Human-in-the-loop (HITL) is an architectural pattern where an AI system pauses at critical decision points to wait for human review, approval, or correction.
+
+### Application
+High-stakes enterprise automation (e.g. paying an invoice > $5,000) where the AI handles 95% of the data prep but the final 'Send' requires a human finger.
+
+### Risks
+Automation bias: Over time, humans become accustomed to the AI being right and may start 'rubber-stamping' its outputs without actually reviewing them carefully."
+roi-modeling,AI ROI Modeling,Governance,Adopt,Strategic,Calculating business value vs. compute cost.,,"### Definition
+AI ROI (Return on Investment) Modeling is the financial practice of measuring the actual business impact (productivity, revenue) against the total cost of AI ownership.
+
+### Application
+Justifying the multi-million dollar GPU budgets to boards and CFOs by proving that AI is driving concrete efficiencies rather than just serving as a 'cool feature'.
+
+### Risks
+Hard-to-measure gains: It's easy to calculate API costs, but measuring the 'saved time' of an engineer or the 'better quality' of a marketing plan is notoriously difficult."
+hallucination-mgmt,Hallucination Management,Governance,Adopt,High,Methods to detect and prevent model hallucinations.,,"### Definition
+Hallucination Management is a system-level approach that uses multi-step verification and external 'fact-checkers' to ensure that every AI output is grounded in truth.
+
+### Application
+Protecting corporate brand trust by ensuring that customer-facing agents never 'make up' fake policies, prices, or product features.
+
+### Risks
+False Fact-checking: If theFact-checker itself is a model, you now have two models that could potentially hallucinate together, creating a 'hallucination loop'."
+data-leakage-prev,Data Leakage Prevention,Governance,Adopt,Critical,"Ensuring test data doesn't contaminate training.",,"### Definition
+Data Leakage Prevention is the strict separation of training, validation, and test datasets to ensure that the model doesn't 'see the answers' before it is tested.
+
+### Application
+Critical for predictive accuracy. If leakage occurs, a model will look perfect in the lab but fail completely when it encounters truly new data in the real world.
+
+### Risks
+Temporal leakage: In time-series data, it is very easy to accidentally train on 'future' data (e.g. using tomorrow's price to predict today's), which is impossible in production."
+model-drift-adopt,Model Drift,Governance,Adopt,Strategic,Monitoring for accuracy decay in live environments.,,"### Definition
+Model Drift (or Concept Drift) is the phenomenon where a model's performance degrades because the underlying relationships in the real-world data have changed.
+
+### Application
+Regularly re-training recommendation or fraud models to ensure they stay relevant as user fashions change or as criminals invent new ways to bypass security.
+
+### Risks
+Silent failure: Unlike code that 'breaks' with an error message, a drifting model will keep giving 'successful' answers that are just increasingly wrong and irrelevant."
+fitting,Overfitting / Underfitting,Governance,Adopt,High,Managing model generalization vs. memorization.,,"### Definition
+Overfitting is when a model memorizes its training data too perfectly, losing the ability to generalize. Underfitting is when the model is too simple to learn the patterns at all.
+
+### Application
+Fine-tuning the 'Sweet Spot' of training duration and model size to ensure it works well on the specific data it was trained on AND all future unknown data.
+
+### Risks
+Memorization leakage: Overfitted models can sometimes 'spout out' verbatim training data, which could include private user info if not carefully scrubbed."
+forgetting,Catastrophic Forgetting,Governance,Adopt,High,Preventing the loss of old skills during new training.,,"### Definition
+Catastrophic Forgetting is the tendency of an artificial neural network to completely and abruptly forget previously learned information upon learning new information.
+
+### Application
+Continuous learning systems. If you train a model to 'code in Python' and then 'code in Java', it might lose its ability to write valid Python if not trained carefully.
+
+### Risks
+Maintenance cost: To prevent forgetting, you often have to re-train the model on 'a little bit of everything' every time you want to teach it something new."
+differential-privacy,Differential Privacy,Governance,Trial,High,Noise-based privacy protection for datasets.,,"### Definition
+Differential Privacy is a mathematical framework that adds a precisely calculated amount of 'noise' to a dataset so that individual records cannot be identified, but group patterns remain.
+
+### Application
+Training AI on highly sensitive personal data (e.g. medical or financial) while providing a mathematical guarantee that no individual's private data can be extracted.
+
+### Risks
+Accuracy loss: There is a direct trade-off (the 'Epsilon Budget') between how much privacy you have and how accurate the resulting model will be."
+constitutional-ai,Constitutional AI,Governance,Trial,Very High,Alignment via a set of high-level principles.,,"### Definition
+Constitutional AI is an alignment method where the model is given a set of written 'principles' (a constitution) and trains itself by critiquing its own behavior against them.
+
+### Application
+Scaling safety without manual human labeling. It allows a model to learn complex ethical behaviors (like being 'harmless' and 'honest') through self-reflection.
+
+### Risks
+Ambiguous principles: If the 'Constitution' is poorly written or contains conflicting values, the model may develop erratic or confusing behavior."
+green-ai,Green AI / Sustainability,Governance,Assess,Medium,Optimizing carbon footprint and power usage.,,"### Definition
+Green AI is the practice of optimizing model training and inference to minimize its environmental impact, focusing on energy efficiency and carbon-aware scheduling.
+
+### Application
+Corporate ESG (Environmental, Social, and Governance) compliance. It involves moving compute to regions with 100% renewable energy and using sparse models (MoE) to lower power draw.
+
+### Risks
+Performance cap: Sometimes the most energy-efficient model is not the most accurate one, forcing companies to choose between sustainability and state-of-the-art power."
+zk-data-prep,Zero-Knowledge Data Prep,Governance,Experimental,Very High,Provable data compliance without revealing raw data.,,"### Definition
+Zero-Knowledge Data Prep uses ZK-proofs to prove that a dataset was cleaned, balanced, and sanitized according to specific rules, without actually showing the data to the auditor.
+
+### Application
+High-trust environments like government or banking where a regulator needs to confirm data quality without the risk of seeing private citizen data.
+
+### Risks
+Computational extreme: Generating ZK-proofs for millions of data points is currently orders of magnitude more expensive than standard data processing."
+agi-gov,AGI Governance Frameworks,Governance,Experimental,Strategic,Policies for handling super-intelligent autonomy.,,"### Definition
+AGI Governance refers to the long-term policy frameworks and international agreements needed to manage systems that reach or exceed human-level intelligence across all domains.
+
+### Application
+Existential risk management. It involves planning for 'fast takeoff' scenarios where an AI could theoretically escape human control or manipulate global systems.
+
+### Risks
+Speculative nature: Because AGI doesn't exist yet, these frameworks are based on theoretical models and simulations, making them hard to test against real-world reality."

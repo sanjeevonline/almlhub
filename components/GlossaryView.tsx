@@ -1,7 +1,6 @@
+
 import React, { useState, useMemo } from 'react';
 import { Category, CompetencyTerm, MaturityLevel } from '../types';
-import { TECHNICAL_DETAILS } from '../detailed-knowledge';
-import { COMPETENCY_DB } from '../data';
 
 interface Props {
   items: CompetencyTerm[];
@@ -10,258 +9,210 @@ interface Props {
   activeCategory: Category | 'All';
   setActiveCategory: (c: Category | 'All') => void;
   onViewChange?: (view: 'glossary' | 'radar') => void;
+  allCompetencies: CompetencyTerm[];
 }
 
 const GlossaryView: React.FC<Props> = ({ 
-  items, search, setSearch, activeCategory, setActiveCategory, onViewChange
+  items, search, setSearch, activeCategory, setActiveCategory, onViewChange, allCompetencies
 }) => {
   const [selectedItem, setSelectedItem] = useState<CompetencyTerm | null>(null);
   
-  // Dynamic extraction of filter values
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(COMPETENCY_DB.glossary.map(i => i.category))).sort();
+    const unique = Array.from(new Set(allCompetencies.map(i => i.category))).sort();
     return ['All', ...unique] as (Category | 'All')[];
-  }, []);
+  }, [allCompetencies]);
 
-  // Utility to clean markdown and extract sections
-  const parseTechnicalData = (id: string) => {
-    const raw = TECHNICAL_DETAILS[id];
+  const parseTechnicalData = (raw?: string) => {
     if (!raw) return { definition: '', application: '', risks: '' };
-    
-    const sections: Record<string, string> = {
-      definition: '',
-      application: '',
-      risks: ''
-    };
-
+    const sections: Record<string, string> = { definition: '', application: '', risks: '' };
     const parts = raw.split(/###\s+/);
     parts.forEach(part => {
       const lines = part.trim().split('\n');
       if (lines.length < 1) return;
-      
       const title = lines[0].toLowerCase().trim();
-      const body = lines.slice(1).join(' ').trim()
-        .replace(/\*\*/g, '') // Remove bold
-        .replace(/^\-\s/gm, '') // Remove list dashes
-        .replace(/^\•\s/gm, '') // Remove bullets
-        .replace(/^\d\.\s/gm, '') // Remove numbering
-        .replace(/\s+/g, ' '); // Clean extra spaces
-
+      const body = lines.slice(1).join('\n').trim();
       if (title.includes('definition')) sections.definition = body;
       if (title.includes('application')) sections.application = body;
       if (title.includes('risks')) sections.risks = body;
     });
-
     return sections;
   };
 
-  const getTagColor = (category: Category) => {
+  const getThemeColors = (category: Category) => {
     switch (category) {
-      case 'Platforms': return 'bg-rose-50 text-rose-600 border-rose-100';
-      case 'Governance': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-      case 'Techniques': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
-      case 'Tools': return 'bg-amber-50 text-amber-600 border-amber-100';
-      default: return 'bg-slate-50 text-slate-400 border-slate-100';
+      case 'Platforms': return { text: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500', border: 'border-rose-200 dark:border-rose-900/50' };
+      case 'Governance': return { text: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500', border: 'border-emerald-200 dark:border-emerald-900/50' };
+      case 'Techniques': return { text: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-500', border: 'border-indigo-200 dark:border-indigo-900/50' };
+      case 'Tools': return { text: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500', border: 'border-amber-200 dark:border-amber-900/50' };
+      default: return { text: 'text-slate-500', bg: 'bg-slate-400', border: 'border-slate-200' };
     }
   };
 
-  const getMaturityColor = (level: MaturityLevel) => {
+  const getMaturityStyle = (level: MaturityLevel) => {
     switch (level) {
-      case 'Adopt': return 'bg-emerald-500 text-white border-emerald-600';
-      case 'Trial': return 'bg-indigo-500 text-white border-indigo-600';
-      case 'Assess': return 'bg-amber-500 text-white border-amber-600';
-      case 'Experimental': return 'bg-purple-600 text-white border-purple-700';
-      default: return 'bg-slate-500 text-white border-slate-600';
+      case 'Adopt': return 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20';
+      case 'Trial': return 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20';
+      case 'Assess': return 'text-amber-600 bg-amber-50 dark:bg-amber-900/20';
+      case 'Experimental': return 'text-purple-600 bg-purple-50 dark:bg-purple-900/20';
     }
   };
 
   return (
-    <div className="space-y-6 relative w-full overflow-x-hidden">
-      {/* Search and Filters Hub */}
-      <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm border border-slate-200 flex flex-col gap-4 md:gap-6">
-        {/* Search Input */}
-        <div className="relative w-full">
-          <input 
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search AI capabilities (e.g. RAG, ROI, GPU)..."
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 md:pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400"
-          />
-          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Search & Filter - Ultra Compact */}
+      <div className="flex-none p-3 md:p-5 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 space-y-3">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <input 
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search matrix..."
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pl-9 pr-4 text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none placeholder:text-slate-400 dark:text-white"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
           </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Compressed Category Filters */}
-          <div className="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
-            {categories.map(cat => (
-              <button 
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] md:text-[9px] font-bold uppercase tracking-wider transition-all border whitespace-nowrap flex-shrink-0 ${
-                  activeCategory === cat 
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-sm' 
-                    : 'bg-white text-slate-500 border-slate-100 hover:border-indigo-200 hover:bg-slate-50'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Quick Nav to Radar */}
           <button 
             onClick={() => onViewChange?.('radar')}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-all self-start md:self-auto"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m16 12-4-4-4 4"></path><path d="M12 16V8"></path></svg>
-            Visualize on Radar
+            Radar
           </button>
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          {categories.map(cat => (
+            <button 
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border flex-shrink-0 transition-all ${
+                activeCategory === cat 
+                  ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900' 
+                  : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Grid of Leaner Cards */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {items.map(item => (
-          <div 
-            key={item.id}
-            onClick={() => setSelectedItem(item)}
-            className="bg-white rounded-[1rem] border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all p-4 cursor-pointer group flex flex-col justify-between min-h-[140px]"
-          >
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`px-1.5 py-0.5 rounded-[4px] text-[7px] font-black uppercase tracking-widest border whitespace-nowrap ${getTagColor(item.category)}`}>
-                  {item.category}
-                </span>
-                <span className={`px-1.5 py-0.5 rounded-[4px] text-[7px] font-black uppercase tracking-widest border whitespace-nowrap ${getMaturityColor(item.maturity)}`}>
-                  {item.maturity}
-                </span>
-              </div>
-              
-              <div className="space-y-1">
-                <h3 className="text-[12px] font-black text-slate-800 tracking-tight uppercase leading-snug group-hover:text-indigo-600 transition-colors line-clamp-2">
+      {/* Grid Area - Viewport Locked */}
+      <div className="flex-1 overflow-y-auto no-scrollbar p-3 md:p-5 bg-slate-50 dark:bg-slate-900">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 md:gap-3">
+          {items.map(item => {
+            const theme = getThemeColors(item.category);
+            return (
+              <div 
+                key={item.id}
+                onClick={() => setSelectedItem(item)}
+                className="relative bg-white dark:bg-slate-800 pl-3 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col overflow-hidden"
+              >
+                {/* Categorical Accent Line */}
+                <div className={`absolute left-0 top-0 bottom-0 w-1 ${theme.bg}`}></div>
+                
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className={`text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${getMaturityStyle(item.maturity)}`}>
+                    {item.maturity}
+                  </span>
+                  <span className="text-[7px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest">
+                    {item.impact}
+                  </span>
+                </div>
+                
+                <h3 className="text-[11px] font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight group-hover:text-indigo-600 transition-colors line-clamp-1 mb-0.5">
                   {item.name}
                 </h3>
-                {item.keyTech && (
-                  <p className="text-[9px] font-bold text-slate-400 truncate uppercase tracking-tight">
-                    {item.keyTech}
-                  </p>
-                )}
+                <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase truncate">
+                  {item.keyTech || item.category}
+                </p>
               </div>
-            </div>
-            
-            <div className="mt-4 flex items-center justify-between border-t border-slate-50 pt-2">
-               <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">{item.impact} Impact</span>
-               <div className="flex items-center gap-1.5">
-                  <span className="text-[7px] font-black text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Detail</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="text-slate-200 group-hover:text-indigo-400 transition-colors"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-               </div>
-            </div>
-          </div>
-        ))}
-        
-        {items.length === 0 && (
-          <div className="col-span-full py-20 text-center bg-white rounded-[2rem] border border-slate-100 border-dashed">
-             <div className="text-3xl mb-3">🔬</div>
-             <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">No results found</p>
-             <button 
-              onClick={() => {setSearch(''); setActiveCategory('All');}}
-              className="mt-4 text-indigo-600 font-bold text-[10px] underline decoration-2 underline-offset-4"
-             >
-               Clear Filters
-             </button>
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
 
-      {/* Detailed View Modal */}
+      {/* Optimized Detail Modal */}
       {selectedItem && (() => {
-        const techData = parseTechnicalData(selectedItem.id);
+        const techData = parseTechnicalData(selectedItem.details);
         const definition = techData.definition || selectedItem.description;
         return (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-xl rounded-[2rem] overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-500 flex flex-col max-h-[90vh]">
-              {/* Modal Header */}
-              <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded-[6px] text-[8px] font-black uppercase tracking-widest border ${getTagColor(selectedItem.category)}`}>
-                    {selectedItem.category}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-[6px] text-[8px] font-black uppercase tracking-widest border ${getMaturityColor(selectedItem.maturity)}`}>
-                    {selectedItem.maturity}
-                  </span>
-                  <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight ml-2">{selectedItem.name}</h2>
+          <div className="fixed inset-0 z-[100] flex flex-col bg-slate-900/95 backdrop-blur-md animate-in fade-in">
+            <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 w-full max-w-3xl mx-auto shadow-2xl overflow-hidden md:my-10 md:rounded-[2.5rem] border border-white/10">
+              
+              {/* Simplified Modal Header */}
+              <div className="flex-none px-6 py-5 md:px-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ${getMaturityStyle(selectedItem.maturity)} border-current`}>
+                      {selectedItem.maturity}
+                    </span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{selectedItem.category}</span>
+                  </div>
+                  <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">
+                    {selectedItem.name}
+                  </h2>
                 </div>
                 <button 
-                  onClick={() => setSelectedItem(null)}
-                  className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-800"
+                  onClick={() => setSelectedItem(null)} 
+                  className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-rose-500 transition-colors shadow-sm"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
 
-              {/* Modal Body */}
-              <div className="p-6 md:p-8 overflow-y-auto space-y-6 no-scrollbar">
-                {selectedItem.keyTech && (
-                  <div className="space-y-1">
-                    <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Key Technologies</h4>
-                    <p className="text-xs font-bold text-indigo-600 uppercase tracking-tight">{selectedItem.keyTech}</p>
+              {/* High-Density Body */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 no-scrollbar">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                    <span className="text-[8px] font-black text-slate-400 uppercase block mb-1">Impact</span>
+                    <span className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase">{selectedItem.impact}</span>
                   </div>
-                )}
-
-                <div className="space-y-2">
-                  <h4 className="text-[9px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-4 h-px bg-slate-200"></span>
-                    Maturity: {selectedItem.maturity}
-                  </h4>
-                  <p className="text-xs text-slate-500 font-bold leading-relaxed italic">
-                    {selectedItem.maturity === 'Adopt' && "Standard industry practice. Low risk, high readiness. Recommended for all production systems."}
-                    {selectedItem.maturity === 'Trial' && "Verified in specialized contexts. Good for focused pilots and innovation projects."}
-                    {selectedItem.maturity === 'Assess' && "Emerging research. Showing strong potential but lacks widespread production hardening."}
-                    {selectedItem.maturity === 'Experimental' && "Cutting-edge or research-only. High risk/reward ratio. Proceed with caution."}
-                  </p>
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                    <span className="text-[8px] font-black text-slate-400 uppercase block mb-1">Architecture</span>
+                    <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase truncate">{selectedItem.keyTech || 'Standard'}</span>
+                  </div>
+                  <div className="hidden md:block p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                    <span className="text-[8px] font-black text-slate-400 uppercase block mb-1">Registry ID</span>
+                    <span className="text-[11px] font-black text-slate-400 dark:text-slate-600 uppercase font-mono">{selectedItem.id.substring(0,8)}</span>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Core Technical Concept</h4>
-                  <p className="text-sm font-semibold text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <section className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Core Summary</h4>
+                  </div>
+                  <p className="text-sm md:text-lg font-semibold text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
                     {definition}
                   </p>
-                </div>
+                </section>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
                   <div className="space-y-2">
-                    <h4 className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Enterprise Application</h4>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                      {techData.application || "Critical for scaling AI initiatives in high-performance production environments."}
+                    <h4 className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Strategic Implementation</h4>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {techData.application || "Critical path requirement for enterprise-grade autonomous swarms and domain-specific logic."}
                     </p>
                   </div>
-
                   <div className="space-y-2">
-                    <h4 className="text-[9px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1.5">
-                      Operational Complexity
-                    </h4>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed italic">
-                      {techData.risks || "Implementation requires specialized infrastructure and rigorous data safety testing."}
+                    <h4 className="text-[9px] font-black text-rose-500 uppercase tracking-widest">Architectural Constraints</h4>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed italic">
+                      {techData.risks || "Requires rigorous testing and policy monitoring to ensure deterministic behavior in production environments."}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Modal Footer */}
-              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                 <div className="flex flex-col">
-                   <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Strategic Impact</span>
-                   <span className="text-[10px] font-black text-indigo-600 uppercase">{selectedItem.impact}</span>
-                 </div>
-                 <button 
-                  onClick={() => setSelectedItem(null)}
-                  className="px-5 py-2.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-600 transition-all shadow-lg shadow-slate-900/20 active:scale-95"
-                 >
-                   Back to Hub
-                 </button>
+              {/* Minimalist Footer - Just a close button for mobile convenience */}
+              <div className="flex-none p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+                <button 
+                  onClick={() => setSelectedItem(null)} 
+                  className="w-full py-4 bg-slate-900 dark:bg-indigo-600 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl hover:bg-indigo-700 transition-all"
+                >
+                  Back to Hub
+                </button>
               </div>
             </div>
           </div>
