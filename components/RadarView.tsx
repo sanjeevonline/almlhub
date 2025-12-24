@@ -67,9 +67,11 @@ const RadarView: React.FC<Props> = ({ onViewChange, allCompetencies }) => {
 
   return (
     <div className="h-full flex flex-col overflow-y-auto no-scrollbar bg-slate-950">
-      {/* Radar Section - Morphs into a heading when a quadrant is selected */}
+      {/* Radar Section - Optimized padding and height for mobile */}
       <div className={`flex-none w-full transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col items-center justify-center bg-black/20 border-b border-slate-900 relative overflow-hidden ${
-        selectedQuadrant ? 'h-[80px] md:h-[120px]' : 'h-[360px] md:h-[80vh] py-8'
+        selectedQuadrant 
+          ? 'h-[80px] md:h-[120px]' 
+          : 'h-[280px] md:h-[80vh] py-2 md:py-8'
       }`}>
         {selectedQuadrant && (
           <div className="absolute left-4 top-1/2 -translate-y-1/2 z-30">
@@ -93,7 +95,7 @@ const RadarView: React.FC<Props> = ({ onViewChange, allCompetencies }) => {
         </div>
       </div>
 
-      {/* Collapsible Maturity Legend - Hidden when quadrant is selected to focus on content */}
+      {/* Collapsible Maturity Legend */}
       <div className={`flex-none w-full bg-slate-950 border-b border-slate-900/50 transition-all duration-500 overflow-hidden ${selectedQuadrant ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}>
         <div className="max-w-[1400px] mx-auto">
           <button 
@@ -137,7 +139,6 @@ const RadarView: React.FC<Props> = ({ onViewChange, allCompetencies }) => {
               
               return (
                 <div key={quad} className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom duration-500">
-                  {/* Category Header (Hidden on mobile if radar acts as header) */}
                   <div className={`flex items-center gap-4 ${selectedQuadrant ? 'hidden md:flex' : 'flex'}`}>
                     <h3 className="text-lg md:text-2xl font-bold uppercase tracking-tight" style={{ color: catColor }}>
                       {quad}

@@ -95,24 +95,44 @@ const App: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-slate-950 text-slate-100 font-sans overflow-hidden">
       <header className="flex-none bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-xl z-50">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-lg shadow-indigo-600/20">AI</div>
-          <h1 className="text-sm font-black tracking-tight text-white uppercase whitespace-nowrap">Radar</h1>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div className="flex flex-col -space-y-1">
+            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">GenAI</span>
+            <h1 className="text-sm font-black tracking-tight text-white uppercase whitespace-nowrap">AI Radar</h1>
+          </div>
         </div>
         
         <div className="flex items-center gap-2">
           <div className="bg-slate-800 p-1 rounded-xl flex items-center gap-1 border border-slate-700">
             <button 
               onClick={() => setCurrentView('radar')} 
-              className={`px-3 py-1.5 rounded-lg transition-all text-[9px] font-black uppercase tracking-widest ${currentView === 'radar' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`p-2 rounded-lg transition-all ${currentView === 'radar' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300'}`}
+              title="Radar View"
             >
-              Radar
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
             </button>
             <button 
               onClick={() => setCurrentView('glossary')} 
-              className={`px-3 py-1.5 rounded-lg transition-all text-[9px] font-black uppercase tracking-widest ${currentView === 'glossary' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`p-2 rounded-lg transition-all ${currentView === 'glossary' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300'}`}
+              title="List View"
             >
-              List
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <path d="M3 6h.01M3 12h.01M3 18h.01"></path>
+              </svg>
             </button>
           </div>
         </div>

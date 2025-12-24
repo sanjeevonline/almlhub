@@ -124,7 +124,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
           <rect x={quadWidth + gap} y={quadHeight + gap} width={quadWidth} height={quadHeight} fill="#f1647e" className="transition-all duration-500 cursor-pointer hover:brightness-105" onClick={() => onQuadrantClick?.('Governance')} />
         </g>
 
-        {/* Maturity Rings & Labels */}
+        {/* Maturity Rings & Labels - Increased visibility */}
         <g className={`pointer-events-none transition-opacity duration-500 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
           {ringRadii.map((r, i) => (
             <React.Fragment key={i}>
@@ -133,9 +133,9 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
                 r={r} 
                 fill="none" 
                 stroke="white" 
-                strokeOpacity="0.3" 
-                strokeWidth="1.5" 
-                strokeDasharray="4 6"
+                strokeOpacity="0.6" 
+                strokeWidth="2" 
+                strokeDasharray="4 4"
               />
               {/* Ring Labels - Balanced positioning */}
               <text 
@@ -143,7 +143,7 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
                 y={centerY - r + 16} 
                 textAnchor="middle" 
                 fill="white" 
-                fillOpacity="0.5" 
+                fillOpacity="0.7" 
                 className="text-[9px] font-black uppercase tracking-[0.3em] pointer-events-none"
               >
                 {RINGS[i]}
@@ -152,12 +152,12 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
           ))}
         </g>
 
-        {/* Quadrant Labels */}
+        {/* Quadrant Labels - Lighter opacity to emphasize rings/blips */}
         <g className="pointer-events-none fill-white font-bold transition-all duration-700">
-          <text x={quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Techniques' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Techniques' ? 0 : 0.9 }}>Techniques ›</text>
-          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Tools' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Tools' ? 0 : 0.9 }}>Tools ›</text>
-          <text x={quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Platforms' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Platforms' ? 0 : 0.9 }}>Platforms ›</text>
-          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Governance' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Governance' ? 0 : 0.9 }}>Governance ›</text>
+          <text x={quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Techniques' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Techniques' ? 0 : 0.6 }}>Techniques</text>
+          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Tools' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Tools' ? 0 : 0.6 }}>Tools</text>
+          <text x={quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Platforms' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Platforms' ? 0 : 0.6 }}>Platforms</text>
+          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: activeQuadrant === 'Governance' ? '46px' : '38px', opacity: activeQuadrant && activeQuadrant !== 'Governance' ? 0 : 0.6 }}>Governance</text>
         </g>
 
         {/* Blips */}
