@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { Category, CompetencyTerm, MaturityLevel, RadarItem } from '../types';
 
@@ -121,91 +122,72 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
           
-          {/* Gradients for brighter quadrants */}
           <radialGradient id="gradTechniques" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
             <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#1e293b" stopOpacity="1" />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
           </radialGradient>
           <radialGradient id="gradTools" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
             <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#0f172a" stopOpacity="1" />
+            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.02" />
           </radialGradient>
           <radialGradient id="gradPlatforms" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
             <stop offset="0%" stopColor="#6366f1" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#0f172a" stopOpacity="1" />
+            <stop offset="100%" stopColor="#6366f1" stopOpacity="0.02" />
           </radialGradient>
           <radialGradient id="gradGovernance" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
             <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#1e293b" stopOpacity="1" />
+            <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.02" />
           </radialGradient>
         </defs>
 
-        {/* Quadrant Rectangles with vibrant borders and brighter fills */}
+        {/* Quadrant Rectangles */}
         <g>
-          {/* Techniques - Top Left */}
-          <rect 
-            x="0" y="0" width={quadWidth} height={quadHeight} 
-            fill="url(#gradTechniques)" 
-            stroke={QUADRANT_COLORS.Techniques} 
-            strokeWidth="4" 
-            strokeOpacity="0.5"
-            className="transition-all duration-500 cursor-pointer hover:stroke-opacity-100 hover:fill-blue-600/30" 
-            onClick={() => onQuadrantClick?.('Techniques')} 
-          />
-          {/* Tools - Top Right */}
-          <rect 
-            x={quadWidth + gap} y="0" width={quadWidth} height={quadHeight} 
-            fill="url(#gradTools)" 
-            stroke={QUADRANT_COLORS.Tools} 
-            strokeWidth="4" 
-            strokeOpacity="0.5"
-            className="transition-all duration-500 cursor-pointer hover:stroke-opacity-100 hover:fill-cyan-600/30" 
-            onClick={() => onQuadrantClick?.('Tools')} 
-          />
-          {/* Platforms - Bottom Left */}
-          <rect 
-            x="0" y={quadHeight + gap} width={quadWidth} height={quadHeight} 
-            fill="url(#gradPlatforms)" 
-            stroke={QUADRANT_COLORS.Platforms} 
-            strokeWidth="4" 
-            strokeOpacity="0.5"
-            className="transition-all duration-500 cursor-pointer hover:stroke-opacity-100 hover:fill-indigo-600/30" 
-            onClick={() => onQuadrantClick?.('Platforms')} 
-          />
-          {/* Governance - Bottom Right */}
-          <rect 
-            x={quadWidth + gap} y={quadHeight + gap} width={quadWidth} height={quadHeight} 
-            fill="url(#gradGovernance)" 
-            stroke={QUADRANT_COLORS.Governance} 
-            strokeWidth="4" 
-            strokeOpacity="0.5"
-            className="transition-all duration-500 cursor-pointer hover:stroke-opacity-100 hover:fill-slate-500/30" 
-            onClick={() => onQuadrantClick?.('Governance')} 
-          />
+          {QUADRANTS.map((q, i) => {
+            const x = i % 2 === 0 ? 0 : quadWidth + gap;
+            const y = i < 2 ? 0 : quadHeight + gap;
+            const color = QUADRANT_COLORS[q];
+            const gradId = `grad${q}`;
+            return (
+              <rect 
+                key={q}
+                x={x} y={y} width={quadWidth} height={quadHeight} 
+                fill={`url(#${gradId})`} 
+                stroke={color} 
+                strokeWidth="2" 
+                strokeOpacity="0.3"
+                className="transition-all duration-500 cursor-pointer hover:stroke-opacity-80 hover:stroke-[4px]" 
+                onClick={() => onQuadrantClick?.(q)} 
+              />
+            );
+          })}
         </g>
 
-        {/* Maturity Rings & Labels - Hidden in active quadrant view */}
+        {/* Maturity Rings & Labels */}
         <g className={`pointer-events-none transition-opacity duration-500 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
           {ringRadii.map((r, i) => (
             <React.Fragment key={i}>
-              <circle cx={centerX} cy={centerY} r={r} fill="none" stroke="#3b82f6" strokeOpacity="0.15" strokeWidth="4" filter="url(#ringGlow)"/>
-              <circle cx={centerX} cy={centerY} r={r} fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="2" strokeDasharray="6 8"/>
-              <text x={centerX} y={centerY - r + 18} textAnchor="middle" fill="white" fillOpacity="0.6" className="text-[10px] font-black uppercase tracking-[0.4em] pointer-events-none drop-shadow-md">
+              <circle cx={centerX} cy={centerY} r={r} fill="none" stroke="#3b82f6" strokeOpacity="0.1" strokeWidth="2" />
+              <text 
+                x={centerX} 
+                y={centerY - r + 18} 
+                textAnchor="middle" 
+                className="text-[9px] font-black uppercase tracking-[0.4em] fill-slate-400 dark:fill-white/30 pointer-events-none drop-shadow-sm transition-colors duration-300"
+              >
                 {RINGS[i]}
               </text>
             </React.Fragment>
           ))}
         </g>
 
-        {/* Quadrant Labels - Hidden in zoomed view to prevent double-titles */}
-        <g className={`pointer-events-none fill-white/30 font-black uppercase transition-all duration-700 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
-          <text x={quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Techniques</text>
-          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Tools</text>
-          <text x={quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Platforms</text>
-          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Governance</text>
+        {/* Quadrant Titles - Contrast adjusted for Light (Darker) and Dark (Lighter) modes */}
+        <g className={`pointer-events-none font-black uppercase transition-all duration-700 ${activeQuadrant ? 'opacity-0' : 'opacity-100'}`}>
+          <text x={quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" className="fill-slate-400 dark:fill-white/10 transition-colors duration-300" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Techniques</text>
+          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight / 2} textAnchor="middle" dominantBaseline="central" className="fill-slate-400 dark:fill-white/10 transition-colors duration-300" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Tools</text>
+          <text x={quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" className="fill-slate-400 dark:fill-white/10 transition-colors duration-300" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Platforms</text>
+          <text x={quadWidth + gap + quadWidth / 2} y={quadHeight + gap + quadHeight / 2} textAnchor="middle" dominantBaseline="central" className="fill-slate-400 dark:fill-white/10 transition-colors duration-300" style={{ fontSize: '38px', letterSpacing: '0.05em' }}>Governance</text>
         </g>
 
-        {/* Blips - Only visible in full radar view now */}
+        {/* Blips */}
         <g className={`transition-opacity duration-500 ${activeQuadrant || (isMobile && !activeQuadrant) ? 'opacity-0' : 'opacity-100'}`}>
           {!activeQuadrant && points.map((p) => {
             const isHovered = hoveredId === p.id;
@@ -222,11 +204,11 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
               >
                 <circle
                   cx={p.x} cy={p.y}
-                  r={isHovered ? 10 : 5.5}
-                  fill={isHovered ? QUADRANT_COLORS[p.category] || "#3b82f6" : "white"}
-                  fillOpacity={isHovered ? 1 : 0.9}
-                  stroke="rgba(0,0,0,0.4)"
-                  strokeWidth="1.5"
+                  r={isHovered ? 9 : 5}
+                  fill={isHovered ? QUADRANT_COLORS[p.category] || "#3b82f6" : (document.documentElement.classList.contains('dark') ? "white" : "#1e293b")}
+                  fillOpacity={isHovered ? 1 : 0.8}
+                  stroke="rgba(0,0,0,0.2)"
+                  strokeWidth="1"
                   className="transition-all duration-300"
                   filter={isHovered ? "url(#blipShadow)" : ""}
                 />
@@ -244,8 +226,8 @@ const TechnicalRadar: React.FC<Props> = ({ onQuadrantClick, onPointClick, active
           const ty = Math.max(10, p.y - tooltipHeight - 15);
           return (
             <g key={`${p.id}-tooltip`} className="pointer-events-none">
-              <rect x={tx} y={ty} width={tooltipWidth} height={tooltipHeight} rx="8" fill="#1e293b" stroke={QUADRANT_COLORS[p.category]} strokeWidth="2" strokeOpacity="0.6" />
-              <text x={tx + tooltipWidth/2} y={ty + tooltipHeight/2} textAnchor="middle" dominantBaseline="central" fill="white" className="text-[10px] font-bold uppercase tracking-tight">
+              <rect x={tx} y={ty} width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-white dark:fill-slate-800 shadow-xl" stroke={QUADRANT_COLORS[p.category]} strokeWidth="2" strokeOpacity="0.6" />
+              <text x={tx + tooltipWidth/2} y={ty + tooltipHeight/2} textAnchor="middle" dominantBaseline="central" className="fill-slate-900 dark:fill-white text-[10px] font-bold uppercase tracking-tight transition-colors duration-300">
                 {p.name}
               </text>
             </g>

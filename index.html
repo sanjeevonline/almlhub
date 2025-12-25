@@ -1,7 +1,16 @@
 
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXQVHQSRKV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-TXQVHQSRKV');
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Radar | Sanjeev Online</title>
@@ -29,8 +38,6 @@
     <style>
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #030712;
-        color: #f8fafc;
         overflow-x: hidden;
       }
       .no-scrollbar::-webkit-scrollbar {
@@ -75,7 +82,7 @@
 </script>
     <script type="module" src="index.tsx"></script>
   </head>
-  <body>
+  <body class="bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-[#f8fafc] transition-colors duration-300">
     <div id="root"></div>
   </body>
 </html>

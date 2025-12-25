@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Category, CompetencyTerm, MaturityLevel } from '../types';
 
@@ -66,20 +67,20 @@ const GlossaryView: React.FC<Props> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search concepts..."
-              className="w-full bg-[#030712] border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-xs font-medium focus:ring-1 focus:ring-blue-500/50 outline-none placeholder:text-slate-600 text-white"
+              className="w-full bg-[#030712] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm font-medium focus:ring-1 focus:ring-blue-500/50 outline-none placeholder:text-slate-600 text-white"
             />
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </div>
           </div>
           <button 
             onClick={() => onViewChange?.('radar')}
-            className="px-4 py-2 bg-white/5 text-slate-300 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5"
+            className="px-5 py-2.5 bg-white/5 text-slate-300 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5"
           >
             Radar View
           </button>
         </div>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
           {categories.map(cat => {
             const isActive = activeCategory === cat;
             const color = cat !== 'All' ? getCategoryColor(cat) : '#2563eb';
@@ -92,7 +93,7 @@ const GlossaryView: React.FC<Props> = ({
                   borderColor: isActive ? color : 'rgba(255, 255, 255, 0.05)',
                   color: isActive ? 'white' : 'rgba(148, 163, 184, 1)'
                 }}
-                className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest border flex-shrink-0 transition-all hover:border-white/20`}
+                className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest border flex-shrink-0 transition-all hover:border-white/20`}
               >
                 {cat}
               </button>
@@ -102,33 +103,33 @@ const GlossaryView: React.FC<Props> = ({
       </div>
 
       {/* Grid Area */}
-      <div className="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar p-6 md:p-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           {items.map(item => {
             const catColor = getCategoryColor(item.category);
             return (
               <div 
                 key={item.id}
                 onClick={() => setSelectedItem(item)}
-                className="relative bg-[#0f172a]/40 p-4 rounded-xl border border-white/5 hover:border-blue-500/30 hover:bg-white/5 transition-all cursor-pointer group flex flex-col h-full"
+                className="relative bg-[#0f172a]/40 p-5 rounded-2xl border border-white/5 hover:border-blue-500/30 hover:bg-white/5 transition-all cursor-pointer group flex flex-col h-full"
                 style={{ borderTop: `2px solid ${catColor}` }}
               >
-                <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                  <span className={`text-[7px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border ${getMaturityStyle(item.maturity)}`}>
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${getMaturityStyle(item.maturity)}`}>
                     {item.maturity}
                   </span>
                   <span 
-                    className="text-[7px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border"
+                    className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border"
                     style={{ borderColor: `${catColor}33`, color: catColor, backgroundColor: `${catColor}11` }}
                   >
                     {item.category}
                   </span>
                 </div>
-                <h3 className="text-[11px] font-semibold text-slate-300 uppercase tracking-tight group-hover:text-white transition-colors line-clamp-2 mb-3">
+                <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-tight group-hover:text-white transition-colors line-clamp-2 mb-4">
                   {item.name}
                 </h3>
-                <div className="mt-auto pt-2 border-t border-white/5">
-                   <p className="text-[7px] text-slate-600 font-bold uppercase tracking-wider truncate">
+                <div className="mt-auto pt-3 border-t border-white/5">
+                   <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider truncate">
                     {item.keyTech || 'Foundation Level'}
                   </p>
                 </div>
@@ -148,48 +149,48 @@ const GlossaryView: React.FC<Props> = ({
             <div className="flex-1 flex flex-col bg-[#0f172a] w-full max-w-2xl mx-auto shadow-2xl overflow-hidden md:my-12 md:rounded-[2rem] border border-white/10 relative">
               
               <div className="flex-none px-8 py-8 md:px-12 flex justify-between items-start border-b border-white/5">
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase tracking-widest ${getMaturityStyle(selectedItem.maturity)}`}>
+                    <span className={`px-2.5 py-1 rounded border text-[10px] font-bold uppercase tracking-widest ${getMaturityStyle(selectedItem.maturity)}`}>
                       {selectedItem.maturity}
                     </span>
                     <span 
-                      className="px-2 py-0.5 rounded border text-[8px] font-bold uppercase tracking-widest"
+                      className="px-2.5 py-1 rounded border text-[10px] font-bold uppercase tracking-widest"
                       style={{ borderColor: `${catColor}44`, color: catColor, backgroundColor: `${catColor}11` }}
                     >
                       {selectedItem.category}
                     </span>
                   </div>
-                  <h2 className="text-xl md:text-2xl font-bold text-white uppercase tracking-tight leading-tight">
+                  <h2 className="text-2xl md:text-3xl font-bold text-white uppercase tracking-tight leading-tight">
                     {selectedItem.name}
                   </h2>
                 </div>
                 <button 
                   onClick={() => setSelectedItem(null)} 
-                  className="p-2 bg-slate-800 rounded-lg text-slate-500 hover:text-white transition-colors border border-white/5"
+                  className="p-3 bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-colors border border-white/5"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-12 space-y-8 no-scrollbar mt-8">
-                <section className="space-y-3">
-                   <h4 className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Executive Brief</h4>
-                   <p className="text-lg font-medium text-slate-200 leading-snug whitespace-pre-wrap">
+              <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-12 space-y-10 no-scrollbar mt-10">
+                <section className="space-y-4">
+                   <h4 className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">Executive Brief</h4>
+                   <p className="text-xl font-medium text-slate-200 leading-snug whitespace-pre-wrap">
                     {definition}
                    </p>
                 </section>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2 p-6 rounded-2xl bg-white/5 border border-white/5">
-                    <h4 className="text-[9px] font-bold text-blue-400/80 uppercase tracking-widest border-b border-white/5 pb-1">Architecture</h4>
-                    <p className="text-xs font-medium text-slate-400 leading-relaxed">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3 p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <h4 className="text-[11px] font-bold text-blue-400/80 uppercase tracking-widest border-b border-white/5 pb-2">Architecture</h4>
+                    <p className="text-sm font-medium text-slate-400 leading-relaxed">
                       {techData.application || "Strategic capability for production-grade AI infrastructure."}
                     </p>
                   </div>
-                  <div className="space-y-2 p-6 rounded-2xl bg-white/5 border border-white/5">
-                    <h4 className="text-[9px] font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-1">Assessment</h4>
-                    <p className="text-xs font-medium text-slate-400 leading-relaxed italic">
+                  <div className="space-y-3 p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">Assessment</h4>
+                    <p className="text-sm font-medium text-slate-400 leading-relaxed italic">
                       {techData.risks || "Demands rigorous validation within specific security boundaries."}
                     </p>
                   </div>
