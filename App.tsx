@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { Category, CompetencyTerm, CompetencyData } from './types';
@@ -6,6 +5,19 @@ import RadarView from './components/RadarView';
 import { COMPETENCY_DB } from './data';
 
 const GOOGLE_SHEET_CSV_URL: string = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQycD-CBf7SjPxqWhKVLkatw_DLur70i1yIbV4RYcUM228KDqpbH6cfojvqNAn67YgczLN5TXS2tPhU/pub?gid=1349546253&single=true&output=csv`;
+
+const BrandIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="24" fill="#030712"/>
+    <circle cx="50" cy="50" r="32" fill="none" stroke="white" strokeWidth="0.5" opacity="0.2"/>
+    <path d="M50 50 L20 50 A30 30 0 0 1 50 20 Z" fill="#4ba2ac"/>
+    <path d="M50 50 L50 20 A30 30 0 0 1 80 50 Z" fill="#71a07d"/>
+    <path d="M50 50 L50 80 A30 30 0 0 1 20 50 Z" fill="#d68f12"/>
+    <path d="M50 50 L80 50 A30 30 0 0 1 50 80 Z" fill="#f2627a"/>
+    <circle cx="50" cy="50" r="6" fill="white"/>
+    <path d="M50 50 L78 38" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+  </svg>
+);
 
 const App: React.FC = () => {
   const [competencyData, setCompetencyData] = useState<CompetencyData | null>(null);
@@ -91,12 +103,13 @@ const App: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-300">
       <header className="flex-none bg-white dark:bg-[#030712] border-b border-slate-200 dark:border-white/5 px-6 py-5 flex items-center justify-between shadow-xl z-50 relative">
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
           <a 
             href="https://www.sanjeevonline.com" 
-            className="flex items-center group transition-opacity hover:opacity-80"
+            className="flex items-center gap-2 group transition-opacity hover:opacity-80"
             title="Back to sanjeevonline.com"
           >
+            <BrandIcon className="w-5 h-5 md:w-6 md:h-6 rounded-md shadow-sm" />
             <div className="flex items-center text-xl md:text-2xl font-black tracking-tighter select-none">
               <span className="text-cyan-600 dark:text-cyan-400">.</span>
               <span className="text-cyan-600 dark:text-cyan-400">/</span>

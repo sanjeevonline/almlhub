@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Category, CompetencyTerm, MaturityLevel } from '../types';
 import TechnicalRadar from './TechnicalRadar';
@@ -6,6 +5,20 @@ import TechnicalRadar from './TechnicalRadar';
 interface Props {
   allCompetencies: CompetencyTerm[];
 }
+
+// Inline brand icon for consistency
+const BrandIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="24" fill="#030712"/>
+    <circle cx="50" cy="50" r="32" fill="none" stroke="white" strokeWidth="0.5" opacity="0.2"/>
+    <path d="M50 50 L20 50 A30 30 0 0 1 50 20 Z" fill="#4ba2ac"/>
+    <path d="M50 50 L50 20 A30 30 0 0 1 80 50 Z" fill="#71a07d"/>
+    <path d="M50 50 L50 80 A30 30 0 0 1 20 50 Z" fill="#d68f12"/>
+    <path d="M50 50 L80 50 A30 30 0 0 1 50 80 Z" fill="#f2627a"/>
+    <circle cx="50" cy="50" r="6" fill="white"/>
+    <path d="M50 50 L78 38" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+  </svg>
+);
 
 // Synchronized with TechnicalRadar.tsx for visual consistency
 const RADAR_COLORS: Record<Category, string> = {
@@ -221,12 +234,16 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
         <footer className="mt-auto w-full py-16 md:py-24 px-6 border-t border-slate-200 dark:border-white/5 bg-slate-100/30 dark:bg-white/[0.01]">
           <div className="max-w-[1400px] mx-auto text-center space-y-8">
             <div className="space-y-4">
-              <p className="text-xs md:text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.5em] opacity-80">
-                AI & GENAI STRATEGY FRAMEWORK
+              <p className="text-[9px] md:text-[10px] font-normal text-slate-900 dark:text-white tracking-[0.3em] opacity-80 uppercase">
+                AI & GenAI Strategy Framework
               </p>
-              <p className="text-[14px] md:text-[16px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] leading-relaxed max-w-2xl mx-auto">
-                An executive-grade competency framework for Individual Contributors, Architects, and Executives in the AI/ML and GenAI space. Curated by <span className="text-blue-600 dark:text-blue-500 font-black">Sanjeev Kumar</span>.
+              <p className="text-[11px] md:text-[12px] font-normal text-slate-500 dark:text-slate-400 tracking-normal leading-relaxed max-w-2xl mx-auto">
+                An executive-grade competency framework for individual contributors, architects, and executives in the AI/ML and GenAI space curated by <span className="text-blue-600 dark:text-blue-500">Sanjeev Kumar</span>.
               </p>
+            </div>
+
+            <div className="pt-4 text-[8px] font-normal text-slate-400 dark:text-slate-600 tracking-[0.2em]">
+              &copy; {new RegExp(/\d{4}/).exec(new Date().toString())?.[0]} Sanjeev Kumar
             </div>
           </div>
         </footer>
@@ -285,10 +302,6 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
                       </h4>
                       <p className="text-[16px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed italic">{techData.risks || "Requires rigorous validation within specific security boundaries and operational domain constraints."}</p>
                     </div>
-                  </div>
-
-                  <div className="pt-12 flex items-center justify-center opacity-30 grayscale">
-                     <img src="https://www.sanjeevonline.com/favicon.ico" className="w-12 h-12" alt="" />
                   </div>
                 </div>
              </div>
