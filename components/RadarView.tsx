@@ -7,11 +7,12 @@ interface Props {
   allCompetencies: CompetencyTerm[];
 }
 
+// Synchronized with TechnicalRadar.tsx for visual consistency
 const RADAR_COLORS: Record<Category, string> = {
-  Techniques: '#3b82f6', // Bright Brand Blue
-  Tools: '#06b6d4',      // Cyan-Teal
-  Platforms: '#6366f1',  // Indigo
-  Governance: '#94a3b8', // Cool Slate
+  Techniques: '#4ba2ac', // Teal
+  Tools: '#71a07d',      // Sage Green
+  Platforms: '#d68f12',  // Gold/Amber
+  Governance: '#f2627a', // Rose/Pink
 };
 
 const MATURITY_DESC: Record<MaturityLevel, string> = {
@@ -176,15 +177,15 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
                     className="group relative bg-white dark:bg-[#0f172a]/40 p-4 md:p-8 rounded-xl md:rounded-3xl border border-slate-200 dark:border-white/5 hover:border-blue-500/40 hover:bg-slate-50 dark:hover:bg-[#0f172a]/60 transition-all cursor-pointer flex flex-col h-full shadow-sm dark:shadow-lg overflow-hidden"
                     style={{ borderTop: `4px solid ${catColor}` }}
                   >
-                    <div className="flex flex-wrap items-center gap-1.5 mb-4 md:mb-6">
-                      <span className={`text-[10px] md:text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md border ${getMaturityStyle(item.maturity)}`}>
+                    <div className="flex flex-nowrap items-center gap-1 mb-3 md:mb-5">
+                      <span className={`text-[8px] md:text-[11px] font-bold uppercase tracking-tighter md:tracking-widest px-1.5 py-0.5 rounded-md border whitespace-nowrap ${getMaturityStyle(item.maturity)}`}>
                         {item.maturity}
                       </span>
                       <span 
-                        className="text-[10px] md:text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md border"
+                        className="text-[8px] md:text-[11px] font-bold uppercase tracking-tighter md:tracking-widest px-1.5 py-0.5 rounded-md border whitespace-nowrap"
                         style={{ borderColor: `${catColor}33`, color: catColor, backgroundColor: `${catColor}11` }}
                       >
-                        {item.category[0]}
+                        {item.category}
                       </span>
                     </div>
                     <h3 className="text-[14px] md:text-[18px] font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight min-h-[2.4rem] md:min-h-0">
@@ -193,7 +194,6 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
                     <p className="text-[13px] md:text-[15px] text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4 md:line-clamp-6 flex-grow">
                       {item.description}
                     </p>
-                    {/* Arrow removed to free up space for description */}
                   </div>
                 );
               })}
@@ -221,7 +221,7 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
         <div className="flex-grow flex flex-col justify-center py-24">
           <div className="max-w-3xl mx-auto w-full p-10 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.02] text-center space-y-4 shadow-sm dark:shadow-2xl">
             <p className="text-sm md:text-base font-black text-slate-900 dark:text-white uppercase tracking-[0.5em]">
-              AI & GENAI STRATEGY FRAMEWORK
+              AI & GENAI STRATEFRAMEWORK
             </p>
             <p className="text-[15px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed max-w-xl mx-auto">
               A comprehensive roadmap for enterprise intelligence, architectural excellence, and strategic implementation curated by <span className="text-blue-600 dark:text-blue-500 font-black">Sanjeev Kumar</span>.

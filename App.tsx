@@ -121,7 +121,7 @@ const App: React.FC = () => {
 
           <div className="flex flex-col items-end text-right">
             <h1 className="text-sm md:text-lg font-black text-slate-900 dark:text-white uppercase tracking-[0.5em] leading-none mb-1">
-              AI RADAR
+              Tech Radar
             </h1>
           </div>
         </div>
