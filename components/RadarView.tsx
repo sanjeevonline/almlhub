@@ -165,7 +165,7 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
 
       {/* Integrated Card Grid - Optimized for Readability */}
       <div className="flex-1 w-full p-2 md:p-10 flex flex-col">
-        <div className="max-w-[1400px] mx-auto w-full">
+        <div className="max-w-[1400px] mx-auto w-full mb-20">
           {filteredItems.length > 0 ? (
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 md:gap-6 animate-in fade-in slide-in-from-bottom duration-500">
               {filteredItems.map(item => {
@@ -217,22 +217,19 @@ const RadarView: React.FC<Props> = ({ allCompetencies }) => {
           )}
         </div>
 
-        {/* Footer expanded space */}
-        <div className="flex-grow flex flex-col justify-center py-24">
-          <div className="max-w-3xl mx-auto w-full p-10 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.02] text-center space-y-4 shadow-sm dark:shadow-2xl">
-            <p className="text-sm md:text-base font-black text-slate-900 dark:text-white uppercase tracking-[0.5em]">
-              AI & GENAI STRATEFRAMEWORK
-            </p>
-            <p className="text-[15px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed max-w-xl mx-auto">
-              A comprehensive roadmap for enterprise intelligence, architectural excellence, and strategic implementation curated by <span className="text-blue-600 dark:text-blue-500 font-black">Sanjeev Kumar</span>.
-            </p>
-            <div className="pt-6 flex items-center justify-center gap-6 opacity-30 grayscale pointer-events-none">
-               <div className="h-[1px] w-16 bg-slate-300 dark:bg-slate-700"></div>
-               <img src="https://www.sanjeevonline.com/favicon.ico" className="w-6 h-6" alt="" />
-               <div className="h-[1px] w-16 bg-slate-300 dark:bg-slate-700"></div>
+        {/* Page Footer Section */}
+        <footer className="mt-auto w-full py-16 md:py-24 px-6 border-t border-slate-200 dark:border-white/5 bg-slate-100/30 dark:bg-white/[0.01]">
+          <div className="max-w-[1400px] mx-auto text-center space-y-8">
+            <div className="space-y-4">
+              <p className="text-xs md:text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.5em] opacity-80">
+                AI & GENAI STRATEGY FRAMEWORK
+              </p>
+              <p className="text-[14px] md:text-[16px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] leading-relaxed max-w-2xl mx-auto">
+                An executive-grade competency framework for Individual Contributors, Architects, and Executives in the AI/ML and GenAI space. Curated by <span className="text-blue-600 dark:text-blue-500 font-black">Sanjeev Kumar</span>.
+              </p>
             </div>
           </div>
-        </div>
+        </footer>
       </div>
 
       {/* Briefing Modal */}
