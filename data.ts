@@ -4,7 +4,7 @@ import { CompetencyData } from './types';
 // Fixed property 'glossary' is missing in type '{}' error by uncommenting the property
 export const COMPETENCY_DB: CompetencyData = {
   glossary: [
-    /*
+    
     { 
       id: 'transformers', 
       name: 'Transformers', 
@@ -15,7 +15,7 @@ export const COMPETENCY_DB: CompetencyData = {
       keyTech: 'Attention Is All You Need',
       details: "### Definition\nThe Transformer is the foundational architecture of modern AI, replacing RNNs/LSTMs with a parallelizable self-attention mechanism. It allows models to weight the significance of different parts of input data dynamically.\n\n### Application\nIt is the 'compute engine' inside GPT-4, Gemini, and Claude. In enterprise settings, understanding Transformer blocks is critical for debugging context window limits and optimizing inference costs.\n\n### Risks\nQuadratic complexity (O(N²)) means that doubling input text quadruples the compute required. Without attention-optimization (like FlashAttention), long-document processing becomes economically unviable."
     },
-    */
+    
     { 
       id: 'slms', 
       name: 'Small Language Models (SLMs)', 
